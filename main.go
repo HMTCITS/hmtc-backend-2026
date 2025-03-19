@@ -6,7 +6,7 @@ import (
 
 	"github.com/HMTCITS/hmtc-backend-2025/config"
 	"github.com/HMTCITS/hmtc-backend-2025/controller"
-	"github.com/HMTCITS/hmtc-backend-2025/model"
+	"github.com/HMTCITS/hmtc-backend-2025/migration"
 	"github.com/HMTCITS/hmtc-backend-2025/repository"
 	"github.com/HMTCITS/hmtc-backend-2025/router"
 	"github.com/HMTCITS/hmtc-backend-2025/service"
@@ -25,7 +25,7 @@ var (
 	userController controller.UserController = controller.NewUserController(userService)
 )
 
-func main () {
+func main() {
 	fmt.Println("Backend HMTC 2025")
 
 	defer config.CloseDatabase(db)
@@ -33,7 +33,7 @@ func main () {
 	server := gin.Default()
 	router.User(server, userController)
 
-	if err := model.Migrate(db); err != nil {
+	if err := migration.Migrate(db); err != nil {
 		panic("Failed to migrate database")
 	}
 
