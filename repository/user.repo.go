@@ -1,18 +1,16 @@
 package repository
 
 import (
-	"errors"
-
 	"github.com/HMTCITS/hmtc-backend-2025/model"
 	"gorm.io/gorm"
 )
 
 type UserRepository interface {
 	Register(user model.User) (model.User, error)
-	IsEmailExist(email string) (bool, error)
-	IsUsernameExist(username string) (bool, error)
-	FindUserByEmmail(email string) (model.User, error)
+	IsNRPExist(nrp string) (bool, error)
+	FindUserByNRP(nrp string) (model.User, error)
 	FindUserById(id string) (model.User, error)
+	FindDepartementByName(name string) (*model.Departement, error)
 }
 
 type userRepository struct {
@@ -45,9 +43,9 @@ func (r *userRepository) FindUserById(id string) (model.User, error) {
 	return user, nil
 }
 
-func (r *userRepository) FindUserByEmmail(email string) (model.User, error) {
+func (r *userRepository) FindUserByNRP(nrp string) (model.User, error) {
 	var user model.User
-	if err := r.DB.Where("email = ?", email).Take(&user).Error; err != nil {
+	if err := r.DB.Where("nrp = ?", nrp).Take(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return model.User{}, nil
 		}
@@ -57,9 +55,9 @@ func (r *userRepository) FindUserByEmmail(email string) (model.User, error) {
 	return user, nil
 }
 
-func (r *userRepository) IsEmailExist(email string) (bool, error) {
+func (r *userRepository) IsNRPExist(nrp string) (bool, error) {
 	var user model.User
-	if err := r.DB.Where("email = ?", email).Take(&user).Error; err != nil {
+	if err := r.DB.Where("nrp = ?", nrp).Take(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return false, nil
 		}
@@ -69,14 +67,11 @@ func (r *userRepository) IsEmailExist(email string) (bool, error) {
 	return true, nil
 }
 
-func (ur *userRepository) IsUsernameExist(username string) (bool, error) {
-	var user model.User
-	err := ur.DB.Where("username = ?", username).First(&user).Error
+func (r *userRepository) FindDepartementByName(name string) (*model.Departement, error) {
+	var departement model.Departement
+	err := r.DB.Where("name = ?", name).First(&departement).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, nil // Username tidak ditemukan
-		}
-		return false, err // Error lain
+		return nil, err
 	}
-	return true, nil // Username ditemukan
+	return &departement, nil
 }
