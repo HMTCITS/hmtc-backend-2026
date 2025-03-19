@@ -9,5 +9,6 @@ func User(r *gin.Engine, uc controller.UserController) {
 	routes := r.Group("/api/user")
 	{
 		routes.POST("/register", uc.Register)
+		routes.GET("/getuser", uc.GetUserByNRP)
 	}
 }

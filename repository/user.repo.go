@@ -35,7 +35,7 @@ func (r *userRepository) FindUserById(id string) (model.User, error) {
 	var user model.User
 	if err := r.DB.Where("id = ?", id).Take(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return model.User{}, nil
+			return model.User{}, err
 		}
 		return model.User{}, err
 	}
@@ -47,7 +47,7 @@ func (r *userRepository) FindUserByNRP(nrp string) (model.User, error) {
 	var user model.User
 	if err := r.DB.Where("nrp = ?", nrp).Take(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return model.User{}, nil
+			return model.User{}, err
 		}
 		return model.User{}, err
 	}
@@ -59,7 +59,7 @@ func (r *userRepository) IsNRPExist(nrp string) (bool, error) {
 	var user model.User
 	if err := r.DB.Where("nrp = ?", nrp).Take(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return false, nil
+			return false, err
 		}
 		return false, err
 	}

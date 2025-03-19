@@ -12,11 +12,21 @@ type UserRegisterRes struct {
 	DepartementName *string `json:"departement_name,omitempty"`
 }
 
+type UserGetByNRPReq struct {
+	NRP string `json:"nrp"`
+}
+
+type UserGetByNRPRes struct {
+	NRP             string  `json:"nrp"`
+	DepartementName *string `json:"departement_name,omitempty"`
+}
+
 const (
 	MSG_USER_REGISTER_SUCCESS = "user registered successfully"
 
 	MSG_USER_REGISTER_FAILED = "user registration failed"
 
+	MSG_USER_FOUND     = "user found"
 	MSG_USER_NOT_FOUND = "user not found"
 )
 

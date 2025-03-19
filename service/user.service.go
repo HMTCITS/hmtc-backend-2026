@@ -1,14 +1,18 @@
 package service
 
 import (
+	"errors"
+
 	"github.com/HMTCITS/hmtc-backend-2025/dto"
 	"github.com/HMTCITS/hmtc-backend-2025/model"
 	"github.com/HMTCITS/hmtc-backend-2025/repository"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type UserService interface {
 	Register(userReq dto.UserRegisterReq) (dto.UserRegisterRes, error)
+	GetUserByNRP(userReq dto.UserGetByNRPReq) (dto.UserGetByNRPRes, error)
 }
 
 type userService struct {
@@ -53,5 +57,25 @@ func (us *userService) Register(userReq dto.UserRegisterReq) (dto.UserRegisterRe
 	return dto.UserRegisterRes{
 		NRP:             usr.NRP,
 		DepartementName: userReq.DepartementName,
+	}, nil
+}
+
+func (us *userService) GetUserByNRP(userReq dto.UserGetByNRPReq) (dto.UserGetByNRPRes, error) {
+	user, err := us.userRepo.FindUserByNRP(userReq.NRP)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return dto.UserGetByNRPRes{}, dto.ErrUserNotFound
+		}
+		return dto.UserGetByNRPRes{}, err
+	}
+
+	var departementName *string
+	if user.Departement != nil {
+		departementName = &user.Departement.Name
+	}
+
+	return dto.UserGetByNRPRes{
+		NRP:             user.NRP,
+		DepartementName: departementName,
 	}, nil
 }
