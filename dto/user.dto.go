@@ -3,14 +3,13 @@ package dto
 import "errors"
 
 type UserRegisterReq struct {
-	Email    string `json:"email" form:"email" binding:"required"`
-	Password string `json:"password" form:"password" binding:"required"`
-	Username string `json:"username" form:"username" binding:"required"`
+	NRP             string  `json:"nrp" form:"nrp" binding:"required"`
+	DepartementName *string `json:"departement_name,omitempty" form:"departement_name,omitempty"`
 }
 
 type UserRegisterRes struct {
-	Email    string `json:"email"`
-	Username string `json:"username"`
+	NRP             string  `json:"nrp"`
+	DepartementName *string `json:"departement_name,omitempty"`
 }
 
 const (
@@ -22,8 +21,6 @@ const (
 )
 
 var (
-	ErrUsernameAlreadyExists = errors.New("username already exists")
-	ErrEmailAlreadyExists    = errors.New("email already exists")
-	ErrLogin                 = errors.New("invalid email or password")
-	ErrUserNotFound          = errors.New("user not found")
+	ErrNRPAlreadyExists = errors.New("nrp already exists")
+	ErrUserNotFound     = errors.New("user not found")
 )
