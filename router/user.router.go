@@ -8,7 +8,6 @@ import (
 func User(r *gin.Engine, uc controller.UserController) {
 	routes := r.Group("/api/user")
 	{
-		routes.GET("/", uc.GetAll)
 		routes.POST("/register", uc.Register)
 	}
 }
