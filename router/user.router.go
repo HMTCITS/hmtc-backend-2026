@@ -1,6 +1,8 @@
 package router
 
 import (
+	"fmt"
+
 	"github.com/HMTCITS/hmtc-backend-2025/controller"
 	"github.com/gin-gonic/gin"
 )
@@ -8,6 +10,7 @@ import (
 func User(r *gin.Engine, uc controller.UserController) {
 	routes := r.Group("/api/user")
 	{
+		fmt.Println("user router")
 		routes.POST("/register", uc.Register)
 	}
 }
