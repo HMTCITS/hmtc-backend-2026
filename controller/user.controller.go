@@ -10,7 +10,6 @@ import (
 )
 
 type UserController interface {
-	GetAll(ctx *gin.Context)
 	Register(ctx *gin.Context)
 }
 
@@ -22,13 +21,6 @@ func NewUserController(us service.UserService) UserController {
 	return &userController{
 		userService: us,
 	}
-}
-
-func (uc *userController) GetAll(ctx *gin.Context) {
-	// --- SEBAGAI CONTOH
-	ctx.JSON(200, gin.H{
-		"message": "Get all users",
-	})
 }
 
 func (uc *userController) Register(ctx *gin.Context) {
