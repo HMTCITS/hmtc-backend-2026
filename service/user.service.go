@@ -4,7 +4,7 @@ import (
 	"github.com/HMTCITS/hmtc-backend-2025/dto"
 	"github.com/HMTCITS/hmtc-backend-2025/model"
 	"github.com/HMTCITS/hmtc-backend-2025/repository"
-	"github.com/HMTCITS/hmtc-backend-2025/utils"
+	"github.com/google/uuid"
 )
 
 type UserService interface {
@@ -22,32 +22,27 @@ func NewUserService(ur repository.UserRepository) UserService {
 }
 
 func (us *userService) Register(userReq dto.UserRegisterReq) (dto.UserRegisterRes, error) {
-	isUsername, err := us.userRepo.IsUsernameExist(userReq.Username)
+	isNRP, err := us.userRepo.IsNRPExist(userReq.NRP)
 	if err != nil {
 		return dto.UserRegisterRes{}, err
 	}
-	if isUsername {
-		return dto.UserRegisterRes{}, dto.ErrUsernameAlreadyExists
+	if isNRP {
+		return dto.UserRegisterRes{}, dto.ErrNRPAlreadyExists
 	}
 
-	isEmail, err := us.userRepo.IsEmailExist(userReq.Email)
-	if err != nil {
-		return dto.UserRegisterRes{}, err
-	}
-
-	if isEmail {
-		return dto.UserRegisterRes{}, dto.ErrEmailAlreadyExists
-	}
-
-	password, err := utils.HashPassword(userReq.Password)
-	if err != nil {
-		return dto.UserRegisterRes{}, err
+	var departementId *uuid.UUID
+	if userReq.DepartementName != nil && *userReq.DepartementName != "" {
+		var departement *model.Departement
+		departement, err = us.userRepo.FindDepartementByName(*userReq.DepartementName)
+		if err != nil {
+			return dto.UserRegisterRes{}, dto.ErrDepartementNotFound
+		}
+		departementId = &departement.Id
 	}
 
 	user := model.User{
-		Email:    userReq.Email,
-		Username: userReq.Username,
-		Password: password,
+		NRP:           userReq.NRP,
+		DepartementId: departementId,
 	}
 
 	usr, err := us.userRepo.Register(user)
@@ -56,7 +51,7 @@ func (us *userService) Register(userReq dto.UserRegisterReq) (dto.UserRegisterRe
 	}
 
 	return dto.UserRegisterRes{
-		Email:    usr.Email,
-		Username: usr.Username,
+		NRP:             usr.NRP,
+		DepartementName: userReq.DepartementName,
 	}, nil
 }
