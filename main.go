@@ -6,6 +6,7 @@ import (
 
 	"github.com/HMTCITS/hmtc-backend-2025/config"
 	"github.com/HMTCITS/hmtc-backend-2025/controller"
+	"github.com/HMTCITS/hmtc-backend-2025/middleware"
 	"github.com/HMTCITS/hmtc-backend-2025/migration"
 	"github.com/HMTCITS/hmtc-backend-2025/repository"
 	"github.com/HMTCITS/hmtc-backend-2025/router"
@@ -31,6 +32,7 @@ func main() {
 	defer config.CloseDatabase(db)
 
 	server := gin.Default()
+	server.Use(middleware.CORSMiddleware())
 	router.User(server, userController)
 
 	if err := migration.Migrate(db); err != nil {
