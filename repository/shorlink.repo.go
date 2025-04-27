@@ -30,5 +30,6 @@ func (r *shortLinkRepository) FindByShortUrl(shorturl string) (model.LinkShorten
 	if err := r.DB.Where("shorturl = ?", shorturl).First(&link).Error; err != nil {
 		return link, err
 	}
+	link.Click++
 	return link, nil
 }

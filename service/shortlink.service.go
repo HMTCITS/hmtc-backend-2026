@@ -7,7 +7,7 @@ import (
 )
 
 type ShortLinkService interface {
-	GenerateShortLink(link dto.ShortLinkDto) (dto.ShortLinkDto, error)
+	GenerateShortLink(link dto.ShortLinkDtoReq) (dto.ShortLinkDtoRes, error)
 	FindByShortUrl(link string) (model.LinkShortener, error)
 }
 
@@ -19,18 +19,19 @@ func NewShortLinkService(repo repository.ShortLinkRepository) ShortLinkService {
 	return &shortLinkService{repo: repo}
 }
 
-func (s *shortLinkService) GenerateShortLink(request dto.ShortLinkDto) (dto.ShortLinkDto, error) {
+func (s *shortLinkService) GenerateShortLink(request dto.ShortLinkDtoReq) (dto.ShortLinkDtoRes, error) {
 	newLink := model.LinkShortener{
-		Fullurl: request.Link,
+		Fullurl:  request.Link,
+		Shorturl: request.ShortLink,
 	}
 
 	createdLink, err := s.repo.GenerateShortLink(newLink)
 	if err != nil {
-		return dto.ShortLinkDto{}, err
+		return dto.ShortLinkDtoRes{ShortLink: ""}, err
 	}
 
-	response := dto.ShortLinkDto{
-		Link: createdLink.Shorturl, // balikin shortlinknya tapi masih uuidnya aja
+	response := dto.ShortLinkDtoRes{
+		ShortLink: "localhost:3000/api/shortlink/redirect/" + createdLink.Shorturl,
 	}
 
 	return response, nil

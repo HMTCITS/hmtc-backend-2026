@@ -25,7 +25,7 @@ func NewShortLinkController(service service.ShortLinkService) ShortLinkControlle
 }
 
 func (c *shortLinkController) GenerateShortLink(ctx *gin.Context) {
-	var link dto.ShortLinkDto
+	var link dto.ShortLinkDtoReq
 
 	if err := ctx.ShouldBind(&link); err != nil {
 		res := utils.ResponseFailed("Invalid link", err.Error())
