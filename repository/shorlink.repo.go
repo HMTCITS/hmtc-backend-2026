@@ -27,9 +27,17 @@ func (r *shortLinkRepository) GenerateShortLink(link model.LinkShortener) (model
 
 func (r *shortLinkRepository) FindByShortUrl(shorturl string) (model.LinkShortener, error) {
 	var link model.LinkShortener
+
 	if err := r.DB.Where("shorturl = ?", shorturl).First(&link).Error; err != nil {
 		return link, err
 	}
-	link.Click++
+
+	//Update click-nya di goroutine
+	go func(shorturl string) {
+		_ = r.DB.Model(&model.LinkShortener{}).
+			Where("shorturl = ?", shorturl).
+			Update("click", gorm.Expr("click + ?", 1)).Error
+	}(shorturl)
+
 	return link, nil
 }
