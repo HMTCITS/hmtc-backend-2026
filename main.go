@@ -21,9 +21,15 @@ var (
 
 	userRepo repository.UserRepository = repository.NewUserRepository(db)
 
+	shortLinkRepo repository.ShortLinkRepository = repository.NewShortLinkRepository(db)
+
 	userService service.UserService = service.NewUserService(userRepo)
 
+	shortLinkService service.ShortLinkService = service.NewShortLinkService(shortLinkRepo)
+
 	userController controller.UserController = controller.NewUserController(userService)
+
+	shortLinkCOntroller controller.ShortLinkController = controller.NewShortLinkController(shortLinkService)
 )
 
 func main() {
@@ -34,6 +40,7 @@ func main() {
 	server := gin.Default()
 	server.Use(middleware.CORSMiddleware())
 	router.User(server, userController)
+	router.ShortLink(server, shortLinkCOntroller)
 
 	if err := migration.Migrate(db); err != nil {
 		panic("Failed to migrate database")
