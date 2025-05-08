@@ -31,7 +31,7 @@ func (s *shortLinkService) GenerateShortLink(request dto.ShortLinkDtoReq) (dto.S
 	}
 
 	response := dto.ShortLinkDtoRes{
-		ShortLink: "localhost:3000/api/shortlink/redirect/" + createdLink.Shorturl,
+		ShortLink: "http://localhost:3000/api/shortlink/redirect/" + createdLink.Shorturl,
 	}
 
 	return response, nil
