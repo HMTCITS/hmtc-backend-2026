@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	_ "github.com/HMTCITS/hmtc-backend-2025/docs"
+
 	"github.com/HMTCITS/hmtc-backend-2025/config"
 	"github.com/HMTCITS/hmtc-backend-2025/controller"
 	"github.com/HMTCITS/hmtc-backend-2025/middleware"
@@ -13,6 +15,8 @@ import (
 	"github.com/HMTCITS/hmtc-backend-2025/service"
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
 )
 
@@ -32,6 +36,11 @@ var (
 	shortLinkCOntroller controller.ShortLinkController = controller.NewShortLinkController(shortLinkService)
 )
 
+// @title	hmtc documentation
+// @version 1.0
+// @description API hmtc link shortener dan user
+// @host localhost:3000
+// @BasePath /api
 func main() {
 	fmt.Println("Backend HMTC 2025")
 
@@ -41,6 +50,8 @@ func main() {
 	server.Use(middleware.CORSMiddleware())
 	router.User(server, userController)
 	router.ShortLink(server, shortLinkCOntroller)
+	// add swagger
+	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	if err := migration.Migrate(db); err != nil {
 		panic("Failed to migrate database")
