@@ -24,6 +24,18 @@ func NewUserController(us service.UserService) UserController {
 	}
 }
 
+// Register godoc
+// @Summary Registrasi user
+// @Description Register user dengan NRP dan asal departemen
+// @Tags user
+// @Accept x-www-form-urlencoded
+// @Produce json
+// @Param nrp formData string true "nrp mahasiswa"
+// @Param departement_name formData string true "asal departemen"
+// @Success 201 {object} utils.Response{data=dto.ShortLinkDtoRes}
+// @Failure 400 {object} utils.Response{error=string} "Validation failed or bad request"
+// @Failure 500 {object} utils.Response{error=string} "Internal server or database error"
+// @Router /user/register [post]
 func (uc *userController) Register(ctx *gin.Context) {
 	var userReq dto.UserRegisterReq
 
@@ -45,6 +57,17 @@ func (uc *userController) Register(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, res)
 }
 
+// Get User NRP godoc
+// @Summary Get User NRP
+// @Description Ambil user berdasarkan NRP
+// @Tags user
+// @Accept x-www-form-urlencoded
+// @Produce json
+// @Param nrp query string true "Nomor Registrasi Pokok"
+// @Success 200 {object} utils.Response{data=dto.UserGetByNRPRes}
+// @Failure 400 {object} utils.Response{error=string} "Validation failed or NRP kosong"
+// @Failure 500 {object} utils.Response{error=string} "Internal server or database error"
+// @Router /user/getuser [get]
 func (uc *userController) GetUserByNRP(ctx *gin.Context) {
 	nrp := ctx.Query("nrp")
 
