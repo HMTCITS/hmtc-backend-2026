@@ -1,4 +1,4 @@
-name: 'CI/CD Deploy'
+name: "CI/CD Deploy"
 
 on:
   push:
@@ -27,6 +27,4 @@ jobs:
           ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Deploy Backend Only
-        run: |
-          ssh deploy@"${{ secrets.DEPLOY_HOST }}" \
-            '/opt/deployment/scripts/deploy.sh backend'
+        run: ssh deploy@${{ secrets.DEPLOY_HOST }} "/opt/deployment/scripts/deploy.sh backend"
