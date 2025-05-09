@@ -24,6 +24,18 @@ func NewShortLinkController(service service.ShortLinkService) ShortLinkControlle
 	}
 }
 
+// Generate short link godoc
+// @Summary buat short link
+// @Description buat short link
+// @Tags link shortener
+// @Accept x-www-form-urlencoded
+// @Produce json
+// @Param link formData string true "URL asli yang ingin diperpendek"
+// @Param shortlink formData string true "nama url (contoh: link:myanimelist.net shortlink: anime)"
+// @Success 200 {object} utils.Response{data=dto.ShortLinkDtoRes}
+// @Failure 400 {object} utils.Response{error=string} "Bad Request"
+// @Failure 500 {object} utils.Response{error=string} "Internal server or database error"
+// @Router /shortlink/generate [post]
 func (c *shortLinkController) GenerateShortLink(ctx *gin.Context) {
 	var link dto.ShortLinkDtoReq
 
@@ -44,6 +56,17 @@ func (c *shortLinkController) GenerateShortLink(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
+// Redirect godoc
+// @Summary Redirect ke url asli
+// @Description Redirect ke url asli berdasarkan shortlink
+// @Tags link shortener
+// @Accept application/x-www-form-urlencoded
+// @Produce json
+// @Param shorturl path string true "nama link yang diinginkan"
+// @Success 301 {string} string "Redirected"
+// @Failure 400 {object} utils.Response{error=string} "Bad Request"
+// @Failure 500 {object} utils.Response{error=string} "Internal server or database error"
+// @Router /shortlink/redirect/{shorturl} [get]
 func (c *shortLinkController) RedirectShortLink(ctx *gin.Context) {
 	shortUrl := ctx.Param("shorturl")
 
