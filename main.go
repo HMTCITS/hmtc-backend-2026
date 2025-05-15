@@ -23,7 +23,8 @@ var (
 
 	userService service.UserService = service.NewUserService(userRepo)
 
-	userController controller.UserController = controller.NewUserController(userService)
+	userController   controller.UserController   = controller.NewUserController(userService)
+	healthController controller.HealthController = controller.NewHealthController()
 )
 
 func main() {
@@ -34,6 +35,7 @@ func main() {
 	server := gin.Default()
 	server.Use(middleware.CORSMiddleware())
 	router.User(server, userController)
+	router.Health(server, healthController)
 
 	if err := migration.Migrate(db); err != nil {
 		panic("Failed to migrate database")
