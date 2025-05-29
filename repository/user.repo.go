@@ -45,7 +45,7 @@ func (r *userRepository) FindUserById(id string) (model.User, error) {
 
 func (r *userRepository) FindUserByNRP(nrp string) (model.User, error) {
 	var user model.User
-	if err := r.DB.Where("nrp = ?", nrp).Take(&user).Error; err != nil {
+	if err := r.DB.Preload("Departement").Where("nrp = ?", nrp).Take(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return model.User{}, err
 		}

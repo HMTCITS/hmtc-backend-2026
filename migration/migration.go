@@ -8,7 +8,8 @@ import (
 func Migrate(db *gorm.DB) error {
 	err := db.AutoMigrate(
 		&model.User{},
-		&model.Departement{})
+		&model.Departement{},
+		&model.LinkShortener{})
 	if err != nil {
 		return err
 	}

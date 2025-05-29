@@ -1,0 +1,212 @@
+basePath: /api
+definitions:
+  dto.ShortLinkDtoRes:
+    properties:
+      shortlink:
+        type: string
+    type: object
+  dto.UserGetByNRPRes:
+    properties:
+      departement_name:
+        type: string
+      nrp:
+        type: string
+    type: object
+  utils.Response:
+    properties:
+      data: {}
+      error: {}
+      message:
+        type: string
+      status:
+        type: boolean
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: API hmtc link shortener dan user
+  title: hmtc documentation
+  version: "1.0"
+paths:
+  /shortlink/generate:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: buat short link
+      parameters:
+      - description: URL asli yang ingin diperpendek
+        in: formData
+        name: link
+        required: true
+        type: string
+      - description: 'nama url (contoh: link:myanimelist.net shortlink: anime)'
+        in: formData
+        name: shortlink
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ShortLinkDtoRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+        "500":
+          description: Internal server or database error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+      summary: buat short link
+      tags:
+      - link shortener
+  /shortlink/redirect/{shorturl}:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Redirect ke url asli berdasarkan shortlink
+      parameters:
+      - description: nama link yang diinginkan
+        in: path
+        name: shorturl
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "301":
+          description: Redirected
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+        "500":
+          description: Internal server or database error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+      summary: Redirect ke url asli
+      tags:
+      - link shortener
+  /user/getuser:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Ambil user berdasarkan NRP
+      parameters:
+      - description: Nomor Registrasi Pokok
+        in: query
+        name: nrp
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserGetByNRPRes'
+              type: object
+        "400":
+          description: Validation failed or NRP kosong
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+        "500":
+          description: Internal server or database error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+      summary: Get User NRP
+      tags:
+      - user
+  /user/register:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Register user dengan NRP dan asal departemen
+      parameters:
+      - description: nrp mahasiswa
+        in: formData
+        name: nrp
+        required: true
+        type: string
+      - description: asal departemen
+        in: formData
+        name: departement_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ShortLinkDtoRes'
+              type: object
+        "400":
+          description: Validation failed or bad request
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+        "500":
+          description: Internal server or database error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+      summary: Registrasi user
+      tags:
+      - user
+swagger: "2.0"
