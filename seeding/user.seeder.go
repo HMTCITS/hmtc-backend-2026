@@ -126,10 +126,6 @@ func (s *UserSeeder) Seed(db *gorm.DB, options SeedOptions) error {
 			DepartmentName: "Creative Media Information",
 		},
 		{
-			NRP:            "5053231014",
-			DepartmentName: "Creative Media Information",
-		},
-		{
 			NRP:            "5025231073",
 			DepartmentName: "Creative Media Information",
 		},

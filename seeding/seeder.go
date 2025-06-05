@@ -59,5 +59,6 @@ func GetSeeders() []Seeder {
 	return []Seeder{
 		NewDepartementSeeder(),
 		NewUserSeeder(),
+		NewAdminSeeder(),
 	}
 }
