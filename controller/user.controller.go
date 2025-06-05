@@ -2,18 +2,23 @@ package controller
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/HMTCITS/hmtc-backend-2025/dto"
 	"github.com/HMTCITS/hmtc-backend-2025/service"
 	"github.com/HMTCITS/hmtc-backend-2025/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type UserController interface {
 	Register(ctx *gin.Context)
 	Login(ctx *gin.Context)
-	Refresh(ctx *gin.Context)
+	// Refresh(ctx *gin.Context)
+	RefreshToken(ctx *gin.Context)
 	GetUserByNRP(ctx *gin.Context)
+	Me(ctx *gin.Context)
+	Logout(ctx *gin.Context)
 }
 
 type userController struct {
@@ -108,27 +113,63 @@ func (uc *userController) Login(ctx *gin.Context) {
 		return
 	}
 
+	ctx.SetCookie("accessToken", response.AccessToken, 3600, "/", "", false, true)
+	ctx.SetCookie("refreshToken", response.RefreshToken, 7*24*3600, "/", "", false, true)
+
 	res := utils.ResponseSuccess(dto.MSG_USER_LOGIN_SUCCESS, response)
 	ctx.JSON(http.StatusOK, res)
 }
 
-func (uc *userController) Refresh(ctx *gin.Context) {
-	var userReq dto.UserRefreshReq
-
-	if err := ctx.ShouldBind(&userReq); err != nil {
-		res := utils.ResponseFailed(dto.MSG_USER_REFRESH_FAILED, "Token tidak ditemukan")
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
-		return
-	}
-
-	response, err := uc.userService.RefreshToken(userReq)
-
+func (uc *userController) RefreshToken(ctx *gin.Context) {
+	refreshToken, err := ctx.Cookie("refreshToken")
 	if err != nil {
-		res := utils.ResponseFailed(dto.MSG_USER_REFRESH_FAILED, err)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Refresh token not found"})
 		return
 	}
 
-	res := utils.ResponseSuccess(dto.MSG_USER_REFRESH_SUCCESS, response)
+	claims, err := utils.VerifyToken(refreshToken, os.Getenv("JWT_REFRESH_SECRET"))
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid refresh token"})
+		return
+	}
+
+	userIDStr, ok := claims["sub"].(string)
+	if !ok {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		return
+	}
+
+	userUUID, _ := uuid.Parse(userIDStr)
+
+	// generate token baru
+	newAccessToken, _ := utils.GenerateToken(userUUID)
+
+	ctx.SetCookie("accessToken", newAccessToken, 3600, "/", "", false, true)
+	ctx.JSON(http.StatusOK, gin.H{"message": "Access token refreshed"})
+}
+
+func (uc *userController) Me(ctx *gin.Context) {
+	userID, exists := ctx.Get("user")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+		return
+	}
+
+	response, err := uc.userService.Me(userID.(string))
+	if err != nil {
+		res := utils.ResponseFailed(dto.MSG_USER_NOT_FOUND, err.Error())
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, res)
+		return
+	}
+
+	res := utils.ResponseSuccess(dto.MSG_USER_FOUND, response)
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (uc *userController) Logout(ctx *gin.Context) {
+	ctx.SetCookie("accessToken", "", -1, "/", "", false, true)
+	ctx.SetCookie("refreshToken", "", -1, "/", "", false, true)
+
+	res := utils.ResponseSuccess("Logout berhasil", nil)
 	ctx.JSON(http.StatusOK, res)
 }

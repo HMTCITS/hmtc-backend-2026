@@ -5,8 +5,8 @@ import (
 
 	"github.com/HMTCITS/hmtc-backend-2025/dto"
 	"github.com/HMTCITS/hmtc-backend-2025/model"
-	myjwt "github.com/HMTCITS/hmtc-backend-2025/pkg/jwt"
 	"github.com/HMTCITS/hmtc-backend-2025/repository"
+	"github.com/HMTCITS/hmtc-backend-2025/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -14,8 +14,8 @@ import (
 type UserService interface {
 	Register(userReq dto.UserRegisterReq) (dto.UserRegisterRes, error)
 	Login(userReq dto.UserLoginReq) (dto.UserLoginRes, error)
-	RefreshToken(userReq dto.UserRefreshReq) (dto.UserRefreshRes, error)
 	GetUserByNRP(userReq dto.UserGetByNRPReq) (dto.UserGetByNRPRes, error)
+	Me(userId string) (dto.UserMeRes, error)
 }
 
 type userService struct {
@@ -64,55 +64,30 @@ func (us *userService) Register(userReq dto.UserRegisterReq) (dto.UserRegisterRe
 }
 
 func (us *userService) Login(userReq dto.UserLoginReq) (dto.UserLoginRes, error) {
-	user, err := us.userRepo.FindUserByNRP(userReq.NRP)
+	isUser, err := us.userRepo.FindUserByNRP(userReq.NRP)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return dto.UserLoginRes{}, dto.ErrUserNotFound
+		}
+		return dto.UserLoginRes{}, err
+	}
+
+	accessToken, err := utils.GenerateToken(isUser.Id)
 	if err != nil {
 		return dto.UserLoginRes{}, err
 	}
 
-	payload := make(map[string]string)
-	payload["id"] = user.Id.String()
-	payload["nrp"] = user.NRP
-	payload["role"] = string(user.Role)
-	payload["departemen_id"] = user.DepartementId.String()
-	payload["departemen_name"] = user.Departement.Name
-
-	accessTokentoken, err := myjwt.GenerateToken(payload, "Access")
+	refreshToken, err := utils.GenerateRefreshToken(isUser.Id)
 	if err != nil {
 		return dto.UserLoginRes{}, err
 	}
 
-	refreshToken, err := myjwt.GenerateToken(payload, "Refresh")
-	if err != nil {
-		return dto.UserLoginRes{}, err
+	user := dto.UserLoginRes{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	}
 
-	return dto.UserLoginRes{AccessToken: accessTokentoken, RefreshToken: refreshToken}, nil
-}
-
-func (us *userService) RefreshToken(userReq dto.UserRefreshReq) (dto.UserRefreshRes, error) {
-	payload, err := myjwt.GetPayload(userReq.RefreshToken)
-	if err != nil {
-		return dto.UserRefreshRes{}, err
-	}
-
-	newPayload := make(map[string]string)
-	newPayload["id"] = payload["id"]
-	newPayload["nrp"] = payload["nrp"]
-	newPayload["role"] = payload["role"]
-	newPayload["departemen_id"] = payload["departemen_id"]
-	newPayload["departemen_name"] = payload["departemen_name"]
-
-	newAccessToken, err := myjwt.GenerateToken(newPayload, "Access")
-	if err != nil {
-		return dto.UserRefreshRes{}, err
-	}
-
-	newRefreshToken, err := myjwt.GenerateToken(newPayload, "Refresh")
-	if err != nil {
-		return dto.UserRefreshRes{}, err
-	}
-
-	return dto.UserRefreshRes{AccessToken: newAccessToken, RefreshToken: newRefreshToken}, nil
+	return user, nil
 }
 
 func (us *userService) GetUserByNRP(userReq dto.UserGetByNRPReq) (dto.UserGetByNRPRes, error) {
@@ -130,6 +105,26 @@ func (us *userService) GetUserByNRP(userReq dto.UserGetByNRPReq) (dto.UserGetByN
 	}
 
 	return dto.UserGetByNRPRes{
+		NRP:             user.NRP,
+		DepartementName: departementName,
+	}, nil
+}
+
+func (us *userService) Me(userId string) (dto.UserMeRes, error) {
+	user, err := us.userRepo.FindUserById(userId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return dto.UserMeRes{}, dto.ErrUserNotFound
+		}
+		return dto.UserMeRes{}, err
+	}
+
+	var departementName *string
+	if user.Departement != nil {
+		departementName = &user.Departement.Name
+	}
+
+	return dto.UserMeRes{
 		NRP:             user.NRP,
 		DepartementName: departementName,
 	}, nil
