@@ -21,6 +21,24 @@ type UserGetByNRPRes struct {
 	DepartementName *string `json:"departement_name,omitempty"`
 }
 
+type UserLoginReq struct {
+	NRP string `json:"nrp" form:"nrp" binding:"required"`
+}
+
+type UserLoginRes struct {
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
+}
+
+type UserRefreshReq struct {
+	RefreshToken string `json:"refreshToken" form:"refreshToken"`
+}
+
+type UserRefreshRes struct {
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
+}
+
 const (
 	MSG_USER_REGISTER_SUCCESS = "user registered successfully"
 
@@ -28,6 +46,14 @@ const (
 
 	MSG_USER_FOUND     = "user found"
 	MSG_USER_NOT_FOUND = "user not found"
+
+	MSG_USER_LOGIN_FAILED = "user login failed"
+
+	MSG_USER_LOGIN_SUCCESS = "user login successfully"
+
+	MSG_USER_REFRESH_FAILED = "user refresh token failed"
+
+	MSG_USER_REFRESH_SUCCESS = "user refresh token success"
 )
 
 var (

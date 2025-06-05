@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	_ "github.com/HMTCITS/hmtc-backend-2025/docs"
@@ -52,6 +53,16 @@ func main() {
 	// add swagger
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.Health(server, healthController)
+
+	//testing middleware
+	server.GET("/api/protected", middleware.Authenticate(), func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, "Success")
+	})
+
+	//testing authorization admin
+	server.GET("/api/only-admin", middleware.Authenticate(), middleware.OnlyAllow(), func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, "success")
+	})
 
 	if err := migration.Migrate(db); err != nil {
 		panic("Failed to migrate database")

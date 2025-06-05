@@ -6,9 +6,11 @@ import (
 )
 
 func User(r *gin.Engine, uc controller.UserController) {
-	routes := r.Group("/api/user")
+	routes := r.Group("/api/auth")
 	{
 		routes.POST("/register", uc.Register)
 		routes.GET("/getuser", uc.GetUserByNRP)
+		routes.POST("/login", uc.Login)
+		routes.POST("/refresh", uc.Refresh)
 	}
 }

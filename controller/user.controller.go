@@ -11,6 +11,8 @@ import (
 
 type UserController interface {
 	Register(ctx *gin.Context)
+	Login(ctx *gin.Context)
+	Refresh(ctx *gin.Context)
 	GetUserByNRP(ctx *gin.Context)
 }
 
@@ -86,5 +88,47 @@ func (uc *userController) GetUserByNRP(ctx *gin.Context) {
 	}
 
 	res := utils.ResponseSuccess(dto.MSG_USER_FOUND, response)
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (uc *userController) Login(ctx *gin.Context) {
+	var userReq dto.UserLoginReq
+
+	if err := ctx.ShouldBind(&userReq); err != nil {
+		res := utils.ResponseFailed(dto.MSG_USER_LOGIN_FAILED, "NRP harus diisi")
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	response, err := uc.userService.Login(userReq)
+
+	if err != nil {
+		res := utils.ResponseFailed(dto.MSG_USER_LOGIN_FAILED, "NRP tidak ditemukan")
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := utils.ResponseSuccess(dto.MSG_USER_LOGIN_SUCCESS, response)
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (uc *userController) Refresh(ctx *gin.Context) {
+	var userReq dto.UserRefreshReq
+
+	if err := ctx.ShouldBind(&userReq); err != nil {
+		res := utils.ResponseFailed(dto.MSG_USER_REFRESH_FAILED, "Token tidak ditemukan")
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	response, err := uc.userService.RefreshToken(userReq)
+
+	if err != nil {
+		res := utils.ResponseFailed(dto.MSG_USER_REFRESH_FAILED, err)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := utils.ResponseSuccess(dto.MSG_USER_REFRESH_SUCCESS, response)
 	ctx.JSON(http.StatusOK, res)
 }
