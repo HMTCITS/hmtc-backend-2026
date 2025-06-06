@@ -13,6 +13,7 @@ func User(r *gin.Engine, uc controller.UserController) {
 		routes.GET("/getuser", uc.GetUserByNRP)
 		routes.POST("/login", uc.Login)
 		routes.GET("/me", middleware.RequireAuth, uc.Me)
+		routes.GET("/admin", middleware.RequireAuth, middleware.OnlyAdmin, uc.MeAdmin)
 		routes.POST("/logout", middleware.RequireAuth, uc.Logout)
 		routes.POST("/refresh", middleware.RequireAuth, uc.RefreshToken)
 	}

@@ -40,8 +40,8 @@ type UserRefreshRes struct {
 }
 
 type UserMeRes struct {
-	NRP             string  `json:"nrp"`
-	DepartementName *string `json:"departement_name,omitempty"`
+	NRP             string `json:"nrp"`
+	DepartementName string `json:"departement_name,omitempty"`
 }
 
 const (
@@ -57,6 +57,7 @@ const (
 	MSG_INVALID_TOKEN_FAILED       = "invalid token"
 	MSG_METHOD_TOKEN_FAILED        = "unexpected signing method"
 	MSG_ACCESS_TOKEN_CREATE_FAILED = "failed to create access token"
+	MSG_USER_FORBIDDEN             = "forbidden"
 
 	MSG_USER_FOUND     = "user found"
 	MSG_USER_NOT_FOUND = "user not found"

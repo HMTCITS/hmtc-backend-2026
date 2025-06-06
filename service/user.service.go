@@ -72,12 +72,12 @@ func (us *userService) Login(userReq dto.UserLoginReq) (dto.UserLoginRes, error)
 		return dto.UserLoginRes{}, err
 	}
 
-	accessToken, err := utils.GenerateToken(isUser.Id)
+	accessToken, err := utils.GenerateToken(isUser.Id, string(isUser.Role))
 	if err != nil {
 		return dto.UserLoginRes{}, err
 	}
 
-	refreshToken, err := utils.GenerateRefreshToken(isUser.Id)
+	refreshToken, err := utils.GenerateRefreshToken(isUser.Id, string(isUser.Role))
 	if err != nil {
 		return dto.UserLoginRes{}, err
 	}
@@ -119,9 +119,9 @@ func (us *userService) Me(userId string) (dto.UserMeRes, error) {
 		return dto.UserMeRes{}, err
 	}
 
-	var departementName *string
+	departementName := ""
 	if user.Departement != nil {
-		departementName = &user.Departement.Name
+		departementName = user.Departement.Name
 	}
 
 	return dto.UserMeRes{
