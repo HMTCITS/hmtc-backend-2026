@@ -37,7 +37,15 @@ func RequireAuth(ctx *gin.Context) {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, utils.ResponseFailed(dto.MSG_AUTH_FAILED, "Invalid user ID in token"))
 			return
 		}
+
+		userRole, ok := claims["role"].(string)
+		if !ok {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, utils.ResponseFailed(dto.MSG_AUTH_FAILED, "Invalid user Role in token"))
+			return
+		}
+
 		ctx.Set("user", userId)
+		ctx.Set("role", userRole)
 		ctx.Next()
 	} else {
 		tryRefreshToken(ctx)
@@ -81,7 +89,7 @@ func tryRefreshToken(ctx *gin.Context) {
 	}
 
 	// Generate new access token
-	newAccessToken, err := utils.GenerateToken(userUUID)
+	newAccessToken, err := utils.GenerateToken(userUUID, claims["role"].(string))
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, utils.ResponseFailed(dto.MSG_ACCESS_TOKEN_CREATE_FAILED, "Failed to create access token"))
 		return
@@ -90,5 +98,20 @@ func tryRefreshToken(ctx *gin.Context) {
 	// Set new access token
 	ctx.SetCookie("accessToken", newAccessToken, int(time.Minute*120/time.Second), "/", "", false, true)
 	ctx.Set("user", userUUID.String())
+	ctx.Next()
+}
+
+func OnlyAdmin(ctx *gin.Context) {
+	userRole, exists := ctx.Get("role")
+	if !exists {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user doesnt have role"})
+		return
+	}
+
+	if userRole != "admin" {
+		ctx.AbortWithStatusJSON(http.StatusForbidden, dto.MSG_USER_FORBIDDEN)
+		return
+	}
+
 	ctx.Next()
 }
