@@ -109,7 +109,7 @@ func OnlyAdmin(ctx *gin.Context) {
 	}
 
 	if userRole != "admin" {
-		ctx.AbortWithStatusJSON(http.StatusForbidden, dto.MSG_USER_FORBIDDEN)
+		ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"msg": dto.MSG_USER_FORBIDDEN})
 		return
 	}
 
