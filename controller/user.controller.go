@@ -139,7 +139,7 @@ func (uc *userController) Login(ctx *gin.Context) {
 // @Tags user
 // @Accept x-www-form-urlencoded
 // @Produce json
-// @Param refreshToken header string true "refresh token"
+// @Param refreshToken cookie string true "refresh token"
 // @Success 200 {object} utils.Response{data=dto.UserRefreshRes}
 // @Failure 400 {object} utils.Response{error=string} "Refresh token not found"
 // @Failure 400 {object} utils.Response{error=string} "Invalid refresh token"
@@ -180,7 +180,7 @@ func (uc *userController) RefreshToken(ctx *gin.Context) {
 // @Tags user
 // @Accept x-www-form-urlencoded
 // @Produce json
-// @Param user header string true "user"
+// @Param user cookie string true "user"
 // @Success 200 {object} utils.Response{data=dto.UserMeRes}
 // @Failure 400 {object} utils.Response{error=string} "User not found"
 // @Failure 400 {object} utils.Response{error=string} "unauthorized"
@@ -210,7 +210,7 @@ func (uc *userController) Me(ctx *gin.Context) {
 // @Tags user
 // @Accept x-www-form-urlencoded
 // @Produce json
-// @Param user header string true "user"
+// @Param user cookie string true "user"
 // @Success 200 {object} utils.Response{data=dto.UserMeRes}
 // @Failure 400 {object} utils.Response{error=string} "User not found"
 // @Failure 400 {object} utils.Response{error=string} "unauthorized"
@@ -241,8 +241,8 @@ func (uc *userController) MeAdmin(ctx *gin.Context) {
 // @Tags user
 // @Accept x-www-form-urlencoded
 // @Produce json
-// @Param accessToken header string true "access token"
-// @Param refreshToken header string true "refresh token"
+// @Param accessToken cookie string true "access token"
+// @Param refreshToken cookie string true "refresh token"
 // @Success 200 {object} utils.Response
 // @Router /auth/logout [post]
 func (uc *userController) Logout(ctx *gin.Context) {
