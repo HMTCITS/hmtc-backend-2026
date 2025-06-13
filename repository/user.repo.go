@@ -33,7 +33,7 @@ func (ur *userRepository) Register(user model.User) (model.User, error) {
 
 func (r *userRepository) FindUserById(id string) (model.User, error) {
 	var user model.User
-	if err := r.DB.Where("id = ?", id).Take(&user).Error; err != nil {
+	if err := r.DB.Preload("Departement").Where("id = ?", id).Take(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return model.User{}, err
 		}

@@ -6,13 +6,16 @@ import (
 	"github.com/HMTCITS/hmtc-backend-2025/dto"
 	"github.com/HMTCITS/hmtc-backend-2025/model"
 	"github.com/HMTCITS/hmtc-backend-2025/repository"
+	"github.com/HMTCITS/hmtc-backend-2025/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type UserService interface {
 	Register(userReq dto.UserRegisterReq) (dto.UserRegisterRes, error)
+	Login(userReq dto.UserLoginReq) (dto.UserLoginRes, error)
 	GetUserByNRP(userReq dto.UserGetByNRPReq) (dto.UserGetByNRPRes, error)
+	Me(userId string) (dto.UserMeRes, error)
 }
 
 type userService struct {
@@ -60,6 +63,33 @@ func (us *userService) Register(userReq dto.UserRegisterReq) (dto.UserRegisterRe
 	}, nil
 }
 
+func (us *userService) Login(userReq dto.UserLoginReq) (dto.UserLoginRes, error) {
+	isUser, err := us.userRepo.FindUserByNRP(userReq.NRP)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return dto.UserLoginRes{}, dto.ErrUserNotFound
+		}
+		return dto.UserLoginRes{}, err
+	}
+
+	accessToken, err := utils.GenerateToken(isUser.Id, string(isUser.Role))
+	if err != nil {
+		return dto.UserLoginRes{}, err
+	}
+
+	refreshToken, err := utils.GenerateRefreshToken(isUser.Id, string(isUser.Role))
+	if err != nil {
+		return dto.UserLoginRes{}, err
+	}
+
+	user := dto.UserLoginRes{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}
+
+	return user, nil
+}
+
 func (us *userService) GetUserByNRP(userReq dto.UserGetByNRPReq) (dto.UserGetByNRPRes, error) {
 	user, err := us.userRepo.FindUserByNRP(userReq.NRP)
 	if err != nil {
@@ -75,6 +105,26 @@ func (us *userService) GetUserByNRP(userReq dto.UserGetByNRPReq) (dto.UserGetByN
 	}
 
 	return dto.UserGetByNRPRes{
+		NRP:             user.NRP,
+		DepartementName: departementName,
+	}, nil
+}
+
+func (us *userService) Me(userId string) (dto.UserMeRes, error) {
+	user, err := us.userRepo.FindUserById(userId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return dto.UserMeRes{}, dto.ErrUserNotFound
+		}
+		return dto.UserMeRes{}, err
+	}
+
+	departementName := ""
+	if user.Departement != nil {
+		departementName = user.Departement.Name
+	}
+
+	return dto.UserMeRes{
 		NRP:             user.NRP,
 		DepartementName: departementName,
 	}, nil

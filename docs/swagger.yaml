@@ -12,6 +12,27 @@ definitions:
       nrp:
         type: string
     type: object
+  dto.UserLoginRes:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  dto.UserMeRes:
+    properties:
+      departement_name:
+        type: string
+      nrp:
+        type: string
+    type: object
+  dto.UserRefreshRes:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
   utils.Response:
     properties:
       data: {}
@@ -28,6 +49,301 @@ info:
   title: hmtc documentation
   version: "1.0"
 paths:
+  /auth/admin:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: show admin info nrp, departemen
+      parameters:
+      - description: user
+        in: header
+        name: user
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserMeRes'
+              type: object
+        "400":
+          description: forbidden
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+        "500":
+          description: Internal server or database error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+      summary: show admin info (only for admin)
+      tags:
+      - user
+  /auth/getuser:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Ambil user berdasarkan NRP
+      parameters:
+      - description: Nomor Registrasi Pokok
+        in: query
+        name: nrp
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserGetByNRPRes'
+              type: object
+        "400":
+          description: Validation failed or NRP kosong
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+        "500":
+          description: Internal server or database error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+      summary: Get User NRP
+      tags:
+      - user
+  /auth/login:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: login dengan nrp
+      parameters:
+      - description: nrp mahasiswa
+        in: formData
+        name: nrp
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserLoginRes'
+              type: object
+        "400":
+          description: nrp harus diisi
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+        "500":
+          description: Internal server or database error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+      summary: Login
+      tags:
+      - user
+  /auth/logout:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: logout
+      parameters:
+      - description: access token
+        in: header
+        name: accessToken
+        required: true
+        type: string
+      - description: refresh token
+        in: header
+        name: refreshToken
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: logout
+      tags:
+      - user
+  /auth/me:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: show user info nrp, departemen
+      parameters:
+      - description: user
+        in: header
+        name: user
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserMeRes'
+              type: object
+        "400":
+          description: unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+        "500":
+          description: Internal server or database error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+      summary: show user info
+      tags:
+      - user
+  /auth/refresh:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: refresh token buat accessToken baru
+      parameters:
+      - description: refresh token
+        in: header
+        name: refreshToken
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserRefreshRes'
+              type: object
+        "400":
+          description: unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+        "500":
+          description: Internal server or database error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+      summary: Refresh token
+      tags:
+      - user
+  /auth/register:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Register user dengan NRP dan asal departemen
+      parameters:
+      - description: nrp mahasiswa
+        in: formData
+        name: nrp
+        required: true
+        type: string
+      - description: asal departemen
+        in: formData
+        name: departement_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ShortLinkDtoRes'
+              type: object
+        "400":
+          description: Validation failed or bad request
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+        "500":
+          description: Internal server or database error
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                error:
+                  type: string
+              type: object
+      summary: Registrasi user
+      tags:
+      - user
   /shortlink/generate:
     post:
       consumes:
@@ -116,97 +432,4 @@ paths:
       summary: Redirect ke url asli
       tags:
       - link shortener
-  /user/getuser:
-    get:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Ambil user berdasarkan NRP
-      parameters:
-      - description: Nomor Registrasi Pokok
-        in: query
-        name: nrp
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.UserGetByNRPRes'
-              type: object
-        "400":
-          description: Validation failed or NRP kosong
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                error:
-                  type: string
-              type: object
-        "500":
-          description: Internal server or database error
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                error:
-                  type: string
-              type: object
-      summary: Get User NRP
-      tags:
-      - user
-  /user/register:
-    post:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Register user dengan NRP dan asal departemen
-      parameters:
-      - description: nrp mahasiswa
-        in: formData
-        name: nrp
-        required: true
-        type: string
-      - description: asal departemen
-        in: formData
-        name: departement_name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.ShortLinkDtoRes'
-              type: object
-        "400":
-          description: Validation failed or bad request
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                error:
-                  type: string
-              type: object
-        "500":
-          description: Internal server or database error
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                error:
-                  type: string
-              type: object
-      summary: Registrasi user
-      tags:
-      - user
 swagger: "2.0"
