@@ -16,8 +16,8 @@ const (
 	StatusRejected Status = "rejected"
 )
 
-type UserFileSession struct {
-	SessionId uuid.UUID `json:"session_id" binding:"required"`
+type UserFileReq struct {
+	ReqId     uuid.UUID `json:"request_id" binding:"required"`
 	Name      string    `json:"name" binding:"required"`
 	NRP       string    `json:"nrp" binding:"required"`
 	Email     string    `json:"email" binding:"required"`
@@ -27,19 +27,19 @@ type UserFileSession struct {
 	ExpiredAt time.Time `json:"expired_at"`
 }
 
-func NewUserFileSession(name string, nrp string, email string, alasan string) (UserFileSession, error) {
+func NewUserFileReq(name string, nrp string, email string, alasan string) (UserFileReq, error) {
 	emailRegex := `^[a-zA-Z0-9.!#$%&'*+/=?^_` + "`" + `{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$`
 
 	re := regexp.MustCompile(emailRegex)
 
 	if !re.MatchString(email) {
-		return UserFileSession{}, errors.New("invalid email")
+		return UserFileReq{}, errors.New("invalid email")
 	}
 
 	now := time.Now()
 
-	return UserFileSession{
-		SessionId: uuid.New(),
+	return UserFileReq{
+		ReqId:     uuid.New(),
 		Name:      name,
 		NRP:       nrp,
 		Email:     email,
@@ -50,6 +50,6 @@ func NewUserFileSession(name string, nrp string, email string, alasan string) (U
 	}, nil
 }
 
-func (u *UserFileSession) IsExpired() bool {
+func (u *UserFileReq) IsExpired() bool {
 	return time.Now().After(u.ExpiredAt)
 }
