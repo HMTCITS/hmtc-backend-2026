@@ -26,13 +26,16 @@ var (
 
 	userRepo      repository.UserRepository      = repository.NewUserRepository(db)
 	shortLinkRepo repository.ShortLinkRepository = repository.NewShortLinkRepository(db)
+	fileTARepo    repository.FileTARepository    = repository.NewFileTARepository(db)
 
 	userService      service.UserService      = service.NewUserService(userRepo)
 	shortLinkService service.ShortLinkService = service.NewShortLinkService(shortLinkRepo)
+	fileTAService    service.FileTAService    = service.NewFileTAService(fileTARepo)
 
 	userController      controller.UserController      = controller.NewUserController(userService)
 	healthController    controller.HealthController    = controller.NewHealthController()
 	shortLinkController controller.ShortLinkController = controller.NewShortLinkController(shortLinkService)
+	fileTAController    controller.FileTAController    = controller.NewFileTAController(fileTAService)
 )
 
 // @title	hmtc documentation
@@ -52,6 +55,17 @@ func main() {
 	// add swagger
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.Health(server, healthController)
+	router.FileTA(server, fileTAController)
+	server.MaxMultipartMemory = 10 << 20
+
+	for _, arg := range os.Args {
+		if arg == "--migrate" {
+			if err := migration.Migrate(db); err != nil {
+				panic("Failed to migrate database")
+			}
+			return
+		}
+	}
 
 	if err := migration.Migrate(db); err != nil {
 		panic("Failed to migrate database")
