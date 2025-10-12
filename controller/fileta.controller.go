@@ -2,7 +2,6 @@ package controller
 
 import (
 	"net/http"
-	"os"
 
 	"github.com/HMTCITS/hmtc-backend-2025/dto"
 	"github.com/HMTCITS/hmtc-backend-2025/service"
@@ -12,6 +11,9 @@ import (
 
 type FileTAController interface {
 	CreateFileTA(ctx *gin.Context)
+	ChangeFileStatus(ctx *gin.Context)
+	GetAllFiles(ctx *gin.Context)
+	GetFileStatus(ctx *gin.Context)
 }
 
 type fileTAController struct {
@@ -64,15 +66,55 @@ func (c *fileTAController) CreateFileTA(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.fileService.CreateFileTA(ctx, req, file.Filename); err != nil {
+	if err := c.fileService.CreateFileTA(ctx, req, file.Filename, f); err != nil {
 		res := utils.ResponseFailed(dto.FileNotCreate, err.Error())
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, res)
 		return
 	}
 
-	os.MkdirAll("./file-ta", os.ModePerm)
-
-	ctx.SaveUploadedFile(file, "./file-ta/"+file.Filename)
-
 	ctx.JSON(http.StatusOK, gin.H{"message": "File uploaded successfully"})
+}
+
+func (c *fileTAController) GetFileStatus(ctx *gin.Context) {
+	fileId := ctx.Param("fileid")
+
+	status, err := c.fileService.GetFileStatus(ctx, fileId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "cannot get file status"})
+		return
+	}
+
+	ctx.JSON(http.StatusAccepted, gin.H{"status": status})
+}
+
+func (c *fileTAController) ChangeFileStatus(ctx *gin.Context) {
+
+	var req dto.ChangeFileStatus
+	if err := ctx.ShouldBind(&req); err != nil {
+		res := utils.ResponseFailed("cannot bind data", err.Error())
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	err := c.fileService.ChangeFileStatus(ctx, req)
+	if err != nil {
+		res := utils.ResponseFailed("cannot change status", err.Error())
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, res)
+		return
+	}
+
+	res := utils.ResponseSuccess("file status changed", nil)
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (c *fileTAController) GetAllFiles(ctx *gin.Context) {
+
+	fileTa, err := c.fileService.GetAllFiles(ctx)
+	if err != nil {
+		res := utils.ResponseFailed(dto.FileNotCreate, err.Error())
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, res)
+		return
+	}
+	res := utils.ResponseSuccess("all file fetched", fileTa)
+	ctx.JSON(http.StatusAccepted, res)
 }

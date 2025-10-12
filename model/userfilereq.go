@@ -18,10 +18,11 @@ const (
 
 type UserFileReq struct {
 	ReqId     uuid.UUID `json:"request_id" binding:"required"`
+	FileId    uuid.UUID `json:"file_id" binding:"required"`
 	Name      string    `json:"name" binding:"required"`
 	NRP       string    `json:"nrp" binding:"required"`
 	Email     string    `json:"email" binding:"required"`
-	AlasanReq string    `json:"alasan_req" binding:"required"`
+	AlasanReq string    `json:"alasan" binding:"required"`
 	Status    Status    `json:"status" binding:"required"`
 	CreatedAt time.Time `json:"created_at" binding:"required"`
 	ExpiredAt time.Time `json:"expired_at"`

@@ -11,7 +11,7 @@ import (
 type FileTARepository interface {
 	CreateFileTA(ctx context.Context, tx *gorm.DB, fileTa model.TAFile) error
 	GetAllFileTA(ctx context.Context, tx *gorm.DB) ([]model.TAFile, error)
-	ChangeFileStatus(ctx context.Context, tx *gorm.DB, fileId uuid.UUID, status model.FileStatus) (string, error)
+	ChangeFileStatus(ctx context.Context, tx *gorm.DB, fileId uuid.UUID, status model.FileStatus) (string, string, error)
 	GetFileStatus(ctx context.Context, tx *gorm.DB, fileId uuid.UUID) (string, error)
 }
 
@@ -50,22 +50,22 @@ func (r *fileTARepository) GetAllFileTA(ctx context.Context, tx *gorm.DB) ([]mod
 	return files, nil
 }
 
-func (r *fileTARepository) ChangeFileStatus(ctx context.Context, tx *gorm.DB, fileId uuid.UUID, status model.FileStatus) (string, error) {
+func (r *fileTARepository) ChangeFileStatus(ctx context.Context, tx *gorm.DB, fileId uuid.UUID, status model.FileStatus) (string, string, error) {
 	if tx == nil {
 		tx = r.db
 	}
 
 	var file model.TAFile
 	if err := tx.Take(&file, "id = ?", fileId).Error; err != nil {
-		return "Fail", err
+		return "", "", err
 	}
 
 	file.Status = status
 	if err := tx.Save(&file).Error; err != nil {
-		return "Fail", err
+		return "", "", err
 	}
 
-	return string(status), nil
+	return string(status), file.FileName, nil
 }
 
 func (r *fileTARepository) GetFileStatus(ctx context.Context, tx *gorm.DB, fileId uuid.UUID) (string, error) {
