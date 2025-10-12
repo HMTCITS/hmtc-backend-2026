@@ -17,7 +17,7 @@ const (
 )
 
 type UserFileReq struct {
-	ReqId     uuid.UUID `json:"request_id" binding:"required"`
+	ReqId     uuid.UUID `gorm:"primaryKey" json:"request_id" binding:"required"`
 	FileId    uuid.UUID `json:"file_id" binding:"required"`
 	Name      string    `json:"name" binding:"required"`
 	NRP       string    `json:"nrp" binding:"required"`
@@ -28,7 +28,7 @@ type UserFileReq struct {
 	ExpiredAt time.Time `json:"expired_at"`
 }
 
-func NewUserFileReq(name string, nrp string, email string, alasan string) (UserFileReq, error) {
+func NewUserFileReq(name string, nrp string, email string, alasan string, fileId uuid.UUID) (UserFileReq, error) {
 	emailRegex := `^[a-zA-Z0-9.!#$%&'*+/=?^_` + "`" + `{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$`
 
 	re := regexp.MustCompile(emailRegex)
@@ -41,6 +41,7 @@ func NewUserFileReq(name string, nrp string, email string, alasan string) (UserF
 
 	return UserFileReq{
 		ReqId:     uuid.New(),
+		FileId:    fileId,
 		Name:      name,
 		NRP:       nrp,
 		Email:     email,

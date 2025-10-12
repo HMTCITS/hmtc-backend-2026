@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/HMTCITS/hmtc-backend-2025/dto"
 	"github.com/HMTCITS/hmtc-backend-2025/service"
@@ -11,6 +12,7 @@ import (
 
 type FileTAController interface {
 	CreateFileTA(ctx *gin.Context)
+	DownloadFile(ctx *gin.Context)
 	ChangeFileStatus(ctx *gin.Context)
 	GetAllFiles(ctx *gin.Context)
 	GetFileStatus(ctx *gin.Context)
@@ -117,4 +119,27 @@ func (c *fileTAController) GetAllFiles(ctx *gin.Context) {
 	}
 	res := utils.ResponseSuccess("all file fetched", fileTa)
 	ctx.JSON(http.StatusAccepted, res)
+}
+
+func (c *fileTAController) DownloadFile(ctx *gin.Context) {
+	fileId := ctx.Param("fileid")
+	filename, err := c.fileService.GetFileName(ctx, fileId)
+	if err != nil {
+		res := utils.ResponseFailed("Cannot download file", err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, res)
+		return
+	}
+	path := "./file-ta/" + filename
+
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "File not found"})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.FileAttachment(path, filename)
+
 }

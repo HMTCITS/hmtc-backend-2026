@@ -15,6 +15,7 @@ import (
 type FileTAService interface {
 	CreateFileTA(ctx context.Context, req dto.CreateFileTA, filename string, file multipart.File) error
 	GetFileStatus(ctx context.Context, fileId string) (string, error)
+	GetFileName(ctx context.Context, fileId string) (string, error)
 	GetAllFiles(ctx context.Context) ([]dto.GetAllFiles, error)
 	ChangeFileStatus(ctx context.Context, req dto.ChangeFileStatus) error
 }
@@ -72,7 +73,7 @@ func (s *fileTAService) GetAllFiles(ctx context.Context) ([]dto.GetAllFiles, err
 	}
 
 	var allFiles []dto.GetAllFiles
-	for index, _ := range files {
+	for index := range files {
 		fileDetail := dto.GetAllFiles{
 			Id:          files[index].Id.String(),
 			FileName:    files[index].FileName,
@@ -94,7 +95,7 @@ func (s *fileTAService) ChangeFileStatus(ctx context.Context, req dto.ChangeFile
 		return err
 	}
 
-	if status == string(model.StatusRejected) {
+	if status == string(model.REJECTED) {
 		path := "./file-ta/" + filename
 		err := os.Remove(path)
 		if err != nil {
@@ -103,4 +104,12 @@ func (s *fileTAService) ChangeFileStatus(ctx context.Context, req dto.ChangeFile
 	}
 
 	return nil
+}
+
+func (s *fileTAService) GetFileName(ctx context.Context, fileId string) (string, error) {
+	filename, err := s.fileTARepo.GetFileName(ctx, nil, uuid.MustParse(fileId))
+	if err != nil {
+		return "", err
+	}
+	return filename, nil
 }

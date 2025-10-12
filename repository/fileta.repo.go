@@ -10,6 +10,7 @@ import (
 
 type FileTARepository interface {
 	CreateFileTA(ctx context.Context, tx *gorm.DB, fileTa model.TAFile) error
+	GetFileName(ctx context.Context, tx *gorm.DB, fileId uuid.UUID) (string, error)
 	GetAllFileTA(ctx context.Context, tx *gorm.DB) ([]model.TAFile, error)
 	ChangeFileStatus(ctx context.Context, tx *gorm.DB, fileId uuid.UUID, status model.FileStatus) (string, string, error)
 	GetFileStatus(ctx context.Context, tx *gorm.DB, fileId uuid.UUID) (string, error)
@@ -34,6 +35,17 @@ func (r *fileTARepository) CreateFileTA(ctx context.Context, tx *gorm.DB, fileTa
 	}
 
 	return nil
+}
+
+func (r *fileTARepository) GetFileName(ctx context.Context, tx *gorm.DB, fileId uuid.UUID) (string, error) {
+	if tx == nil {
+		tx = r.db
+	}
+	var file model.TAFile
+	if err := tx.Take(&file, "id = ?", fileId).Error; err != nil {
+		return "", err
+	}
+	return file.FileName, nil
 }
 
 func (r *fileTARepository) GetAllFileTA(ctx context.Context, tx *gorm.DB) ([]model.TAFile, error) {
@@ -75,7 +87,7 @@ func (r *fileTARepository) GetFileStatus(ctx context.Context, tx *gorm.DB, fileI
 
 	var file model.TAFile
 	if err := tx.Take(&file, "id = ?", fileId).Error; err != nil {
-		return "Fail", err
+		return "", err
 	}
 
 	return string(file.Status), nil

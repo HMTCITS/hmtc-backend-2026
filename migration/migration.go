@@ -10,7 +10,8 @@ func Migrate(db *gorm.DB) error {
 		&model.User{},
 		&model.Departement{},
 		&model.LinkShortener{},
-		&model.TAFile{})
+		&model.TAFile{},
+		&model.UserFileReq{})
 	if err != nil {
 		return err
 	}

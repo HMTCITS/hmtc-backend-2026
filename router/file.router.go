@@ -6,8 +6,12 @@ import (
 )
 
 func FileTA(r *gin.Engine, c controller.FileTAController) {
-	routes := r.Group("/file-ta")
+	routes := r.Group("/api/file-ta")
 	{
 		routes.POST("/upload", c.CreateFileTA)
+		routes.POST("/change-status", c.ChangeFileStatus)
+		routes.GET("/", c.GetAllFiles)
+		routes.GET("/:fileid", c.GetFileStatus)
+		routes.GET("/download/:fileid", c.DownloadFile)
 	}
 }

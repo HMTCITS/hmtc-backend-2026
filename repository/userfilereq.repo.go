@@ -10,7 +10,8 @@ import (
 
 type UserFileReqRepository interface {
 	NewUserFileReq(ctx context.Context, tx *gorm.DB, userReq model.UserFileReq) error
-	UserFileStatus(ctx context.Context, tx *gorm.DB, reqId uuid.UUID) (string, error)
+	UserFileStatus(ctx context.Context, tx *gorm.DB, reqId uuid.UUID) (model.Status, error)
+	GetAllFileReq(ctx context.Context, tx *gorm.DB) ([]model.UserFileReq, error)
 	ChangeReqStatus(ctx context.Context, tx *gorm.DB, reqId uuid.UUID, status model.Status) error
 }
 
@@ -34,17 +35,17 @@ func (r *userFileReqRepository) NewUserFileReq(ctx context.Context, tx *gorm.DB,
 	return nil
 }
 
-func (r *userFileReqRepository) UserFileStatus(ctx context.Context, tx *gorm.DB, reqId uuid.UUID) (string, error) {
+func (r *userFileReqRepository) UserFileStatus(ctx context.Context, tx *gorm.DB, reqId uuid.UUID) (model.Status, error) {
 	if tx == nil {
 		tx = r.db
 	}
 
 	var file model.UserFileReq
-	if err := tx.WithContext(ctx).Take(&file, "id = ?", reqId).Error; err != nil {
+	if err := tx.WithContext(ctx).Take(&file, "req_id = ?", reqId).Error; err != nil {
 		return "file not found", err
 	}
 
-	return string(file.Status), nil
+	return file.Status, nil
 }
 
 func (r *userFileReqRepository) ChangeReqStatus(ctx context.Context, tx *gorm.DB, reqId uuid.UUID, status model.Status) error {
@@ -53,7 +54,7 @@ func (r *userFileReqRepository) ChangeReqStatus(ctx context.Context, tx *gorm.DB
 	}
 
 	var file model.UserFileReq
-	if err := tx.WithContext(ctx).Take(&file, "id = ?", reqId).Error; err != nil {
+	if err := tx.WithContext(ctx).Take(&file, "req_id = ?", reqId).Error; err != nil {
 		return err
 	}
 
@@ -64,4 +65,17 @@ func (r *userFileReqRepository) ChangeReqStatus(ctx context.Context, tx *gorm.DB
 	}
 
 	return nil
+}
+
+func (r *userFileReqRepository) GetAllFileReq(ctx context.Context, tx *gorm.DB) ([]model.UserFileReq, error) {
+	if tx == nil {
+		tx = r.db
+	}
+
+	var fileReq []model.UserFileReq
+	if err := tx.WithContext(ctx).Find(&fileReq).Error; err != nil {
+		return []model.UserFileReq{}, err
+	}
+
+	return fileReq, nil
 }
