@@ -73,6 +73,6 @@ func (c *userFileReqController) UserFileStatus(ctx *gin.Context) {
 		return
 	}
 
-	res := utils.ResponseSuccess("file status fetched", gin.H{"status": status})
+	res := utils.ResponseSuccess("file status fetched", status)
 	ctx.JSON(http.StatusAccepted, res)
 }

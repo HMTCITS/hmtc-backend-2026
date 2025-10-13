@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"os"
@@ -15,20 +17,30 @@ import (
 type FileTAService interface {
 	CreateFileTA(ctx context.Context, req dto.CreateFileTA, filename string, file multipart.File) error
 	GetFileStatus(ctx context.Context, fileId string) (string, error)
-	GetFileName(ctx context.Context, fileId string) (string, error)
+	GetFileName(ctx context.Context, reqId string, fileId string, userNRP string) (string, error)
 	GetAllFiles(ctx context.Context) ([]dto.GetAllFiles, error)
 	ChangeFileStatus(ctx context.Context, req dto.ChangeFileStatus) error
 }
 
 type fileTAService struct {
-	fileTARepo repository.FileTARepository
+	fileTARepo      repository.FileTARepository
+	userFileReqRepo repository.UserFileReqRepository
 }
 
-func NewFileTAService(fileTARepo repository.FileTARepository) FileTAService {
-	return &fileTAService{fileTARepo: fileTARepo}
+func NewFileTAService(fileTARepo repository.FileTARepository, userFileReqRepo repository.UserFileReqRepository) FileTAService {
+	return &fileTAService{fileTARepo: fileTARepo, userFileReqRepo: userFileReqRepo}
 }
 
 func (s *fileTAService) CreateFileTA(ctx context.Context, req dto.CreateFileTA, filename string, file multipart.File) error {
+	err := os.MkdirAll("./file-ta", os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	_, err = file.Seek(0, io.SeekStart)
+	if err != nil {
+		return err
+	}
 
 	out, err := os.Create("./file-ta/" + filename)
 	if err != nil {
@@ -49,7 +61,7 @@ func (s *fileTAService) CreateFileTA(ctx context.Context, req dto.CreateFileTA, 
 
 	fileErr := s.fileTARepo.CreateFileTA(ctx, nil, fileTA)
 	if fileErr != nil {
-		return err
+		return fileErr
 	}
 
 	return nil
@@ -106,7 +118,15 @@ func (s *fileTAService) ChangeFileStatus(ctx context.Context, req dto.ChangeFile
 	return nil
 }
 
-func (s *fileTAService) GetFileName(ctx context.Context, fileId string) (string, error) {
+func (s *fileTAService) GetFileName(ctx context.Context, reqId string, fileId string, userNRP string) (string, error) {
+	fmt.Println(userNRP)
+	nrp, err := s.userFileReqRepo.GetUserNRPReq(ctx, nil, uuid.MustParse(reqId))
+	if err != nil {
+		return "", err
+	}
+	if userNRP != nrp {
+		return "", errors.New("invalid NRP")
+	}
 	filename, err := s.fileTARepo.GetFileName(ctx, nil, uuid.MustParse(fileId))
 	if err != nil {
 		return "", err

@@ -12,7 +12,7 @@ import (
 type UserFileReqService interface {
 	NewUserFileReq(ctx context.Context, req dto.UserFileReqDto) error
 	ChangeUserFileReqStatus(ctx context.Context, req dto.ChangeUserFileReqDto) error
-	UserFileReqStatus(ctx context.Context, reqId string) (string, error)
+	UserFileReqStatus(ctx context.Context, reqId string) (dto.UserFileResDto, error)
 }
 
 type userFileReqService struct {
@@ -45,12 +45,25 @@ func (s *userFileReqService) ChangeUserFileReqStatus(ctx context.Context, req dt
 	return nil
 }
 
-func (s *userFileReqService) UserFileReqStatus(ctx context.Context, reqId string) (string, error) {
+func (s *userFileReqService) UserFileReqStatus(ctx context.Context, reqId string) (dto.UserFileResDto, error) {
 
 	status, err := s.userFileRepo.UserFileStatus(ctx, nil, uuid.MustParse(reqId))
 	if err != nil {
-		return "", err
+		return dto.UserFileResDto{}, err
 	}
 
-	return string(status), nil
+	var link *string
+	if status == model.StatusApproved {
+		fileId, err := s.userFileRepo.GetFileIdByReqId(ctx, nil, uuid.MustParse(reqId))
+		if err != nil {
+			return dto.UserFileResDto{}, err
+		}
+		tmp := "http://localhost:8080/api/file-ta/download/" + reqId + "/" + fileId
+		link = &tmp
+	}
+
+	return dto.UserFileResDto{
+		Status: string(status),
+		Link:   link,
+	}, nil
 }

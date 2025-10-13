@@ -14,3 +14,8 @@ type ChangeUserFileReqDto struct {
 	ReqId  string       `json:"req_id" form:"req_id" binding:"required"`
 	Status model.Status `json:"status" form:"status" binding:"required"`
 }
+
+type UserFileResDto struct {
+	Status string  `json:"status" form:"status" binding:"required"`
+	Link   *string `json:"link"`
+}

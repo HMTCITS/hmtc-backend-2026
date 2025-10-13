@@ -31,7 +31,7 @@ var (
 
 	userService        service.UserService        = service.NewUserService(userRepo)
 	shortLinkService   service.ShortLinkService   = service.NewShortLinkService(shortLinkRepo)
-	fileTAService      service.FileTAService      = service.NewFileTAService(fileTARepo)
+	fileTAService      service.FileTAService      = service.NewFileTAService(fileTARepo, userFileReqRepo)
 	userFileReqService service.UserFileReqService = service.NewUserFileService(userFileReqRepo)
 
 	userController        controller.UserController        = controller.NewUserController(userService)

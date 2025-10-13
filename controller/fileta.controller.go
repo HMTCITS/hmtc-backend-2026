@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
@@ -122,8 +123,17 @@ func (c *fileTAController) GetAllFiles(ctx *gin.Context) {
 }
 
 func (c *fileTAController) DownloadFile(ctx *gin.Context) {
+	reqId := ctx.Param("reqid")
 	fileId := ctx.Param("fileid")
-	filename, err := c.fileService.GetFileName(ctx, fileId)
+	userNrp, exists := ctx.Get("nrp")
+	if !exists {
+		res := utils.ResponseFailed("NRP not provided, please login", nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+	nrpStr := fmt.Sprintf("%v", userNrp)
+
+	filename, err := c.fileService.GetFileName(ctx, reqId, fileId, nrpStr)
 	if err != nil {
 		res := utils.ResponseFailed("Cannot download file", err)
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, res)

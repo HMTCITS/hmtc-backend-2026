@@ -11,6 +11,8 @@ import (
 type UserFileReqRepository interface {
 	NewUserFileReq(ctx context.Context, tx *gorm.DB, userReq model.UserFileReq) error
 	UserFileStatus(ctx context.Context, tx *gorm.DB, reqId uuid.UUID) (model.Status, error)
+	GetFileIdByReqId(ctx context.Context, tx *gorm.DB, reqId uuid.UUID) (string, error)
+	GetUserNRPReq(ctx context.Context, tx *gorm.DB, reqId uuid.UUID) (string, error)
 	GetAllFileReq(ctx context.Context, tx *gorm.DB) ([]model.UserFileReq, error)
 	ChangeReqStatus(ctx context.Context, tx *gorm.DB, reqId uuid.UUID, status model.Status) error
 }
@@ -46,6 +48,32 @@ func (r *userFileReqRepository) UserFileStatus(ctx context.Context, tx *gorm.DB,
 	}
 
 	return file.Status, nil
+}
+
+func (r *userFileReqRepository) GetFileIdByReqId(ctx context.Context, tx *gorm.DB, reqId uuid.UUID) (string, error) {
+	if tx == nil {
+		tx = r.db
+	}
+
+	var file model.UserFileReq
+	if err := tx.WithContext(ctx).Take(&file, "req_id = ?", reqId).Error; err != nil {
+		return "file not found", err
+	}
+
+	return file.FileId.String(), nil
+}
+
+func (r *userFileReqRepository) GetUserNRPReq(ctx context.Context, tx *gorm.DB, reqId uuid.UUID) (string, error) {
+	if tx == nil {
+		tx = r.db
+	}
+
+	var file model.UserFileReq
+	if err := tx.WithContext(ctx).Take(&file, "req_id = ?", reqId).Error; err != nil {
+		return "file not found", err
+	}
+
+	return file.NRP, nil
 }
 
 func (r *userFileReqRepository) ChangeReqStatus(ctx context.Context, tx *gorm.DB, reqId uuid.UUID, status model.Status) error {

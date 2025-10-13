@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/HMTCITS/hmtc-backend-2025/controller"
+	"github.com/HMTCITS/hmtc-backend-2025/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,6 +13,6 @@ func FileTA(r *gin.Engine, c controller.FileTAController) {
 		routes.POST("/change-status", c.ChangeFileStatus)
 		routes.GET("/", c.GetAllFiles)
 		routes.GET("/:fileid", c.GetFileStatus)
-		routes.GET("/download/:fileid", c.DownloadFile)
+		routes.GET("/download/:reqid/:fileid", middleware.RequireAuth, c.DownloadFile)
 	}
 }

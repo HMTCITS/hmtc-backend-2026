@@ -9,10 +9,11 @@ import (
 	"github.com/google/uuid"
 )
 
-func GenerateToken(userId uuid.UUID, role string) (string, error) {
+func GenerateToken(userId uuid.UUID, role string, nrp string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub":  userId,
 		"role": role,
+		"nrp":  nrp,
 		"exp":  jwt.NewNumericDate(time.Now().Add(time.Minute * 120)),
 	})
 
@@ -25,10 +26,11 @@ func GenerateToken(userId uuid.UUID, role string) (string, error) {
 
 }
 
-func GenerateRefreshToken(userId uuid.UUID, role string) (string, error) {
+func GenerateRefreshToken(userId uuid.UUID, role string, nrp string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub":  userId,
 		"role": role,
+		"nrp":  nrp,
 		"exp":  jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 7)), // 7 hari
 	})
 
