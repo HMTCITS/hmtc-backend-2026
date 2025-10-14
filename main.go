@@ -29,10 +29,14 @@ var (
 
 	userService      service.UserService      = service.NewUserService(userRepo)
 	shortLinkService service.ShortLinkService = service.NewShortLinkService(shortLinkRepo)
+	driveService     service.DriveService     = service.NewDriveService()
+	sheetsService    service.SheetsService    = service.NewSheetsService()
+	magangService    service.MagangService    = service.NewMagangService(driveService, sheetsService)
 
 	userController      controller.UserController      = controller.NewUserController(userService)
 	healthController    controller.HealthController    = controller.NewHealthController()
 	shortLinkController controller.ShortLinkController = controller.NewShortLinkController(shortLinkService)
+	magangController    controller.MagangController    = controller.NewMagangController(magangService)
 )
 
 // @title	hmtc documentation
@@ -49,6 +53,7 @@ func main() {
 	server.Use(middleware.CORSMiddleware())
 	router.User(server, userController)
 	router.ShortLink(server, shortLinkController)
+	router.Magang(server, magangController)
 	// add swagger
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.Health(server, healthController)
@@ -66,3 +71,11 @@ func main() {
 		panic(err.Error())
 	}
 }
+
+// {
+//   "refresh_token": "1//0gxVtlrj2xfG7CgYIARAAGBASNwF-L9IrscPtyWRmB3sTV_LWuAy2oJeRGXGyuYIXKuuUwZYM0u-zFE089UUgBu5runoQ5jsnAQQ"
+// }
+
+// {
+//   "refresh_token": "1//0gU-KpcfnqQNZCgYIARAAGBASNwF-L9Irp93-wJbNI5mSAu2AaW7i3WEJJ3dSgGsQU0oAkpSbeiFiUyaf3HDm8CO453oxh3omsVw"
+// }
