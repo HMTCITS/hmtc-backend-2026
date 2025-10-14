@@ -44,15 +44,8 @@ func RequireAuth(ctx *gin.Context) {
 			return
 		}
 
-		userNRP, ok := claims["nrp"].(string)
-		if !ok {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, utils.ResponseFailed(dto.MSG_AUTH_FAILED, "Invalid user Role in token"))
-			return
-		}
-
 		ctx.Set("user", userId)
 		ctx.Set("role", userRole)
-		ctx.Set("nrp", userNRP)
 		ctx.Next()
 	} else {
 		tryRefreshToken(ctx)
@@ -95,7 +88,7 @@ func tryRefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	newAccessToken, err := utils.GenerateToken(userUUID, claims["role"].(string), claims["nrp"].(string))
+	newAccessToken, err := utils.GenerateToken(userUUID, claims["role"].(string))
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, utils.ResponseFailed(dto.MSG_ACCESS_TOKEN_CREATE_FAILED, "Failed to create access token"))
 		return

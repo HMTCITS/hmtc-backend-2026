@@ -72,12 +72,12 @@ func (us *userService) Login(userReq dto.UserLoginReq) (dto.UserLoginRes, error)
 		return dto.UserLoginRes{}, err
 	}
 
-	accessToken, err := utils.GenerateToken(isUser.Id, string(isUser.Role), isUser.NRP)
+	accessToken, err := utils.GenerateToken(isUser.Id, string(isUser.Role))
 	if err != nil {
 		return dto.UserLoginRes{}, err
 	}
 
-	refreshToken, err := utils.GenerateRefreshToken(isUser.Id, string(isUser.Role), isUser.NRP)
+	refreshToken, err := utils.GenerateRefreshToken(isUser.Id, string(isUser.Role))
 	if err != nil {
 		return dto.UserLoginRes{}, err
 	}
