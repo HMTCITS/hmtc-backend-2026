@@ -17,7 +17,6 @@ import (
 
 type SheetsService interface {
 	AppendRow(spreadsheetID string, sheetName string, values []interface{}) error
-	AppendRowServiceAccount(credsFile string, spreadsheetID string, sheetName string, values []interface{}) error
 }
 
 type sheetsService struct{}
@@ -131,30 +130,6 @@ func (ss *sheetsService) AppendRow(spreadsheetID string, sheetName string, value
 
 	if err != nil {
 		return fmt.Errorf("gagal append data ke sheet: %v", err)
-	}
-
-	// log.Println("Data berhasil ditambahkan ke sheet:", sheetName)
-	return nil
-}
-
-func (ss *sheetsService) AppendRowServiceAccount(credsFile string, spreadsheetID string, sheetName string, values []interface{}) error {
-	ctx := context.Background()
-
-	srv, err := sheets.NewService(ctx, option.WithCredentialsFile(credsFile))
-	if err != nil {
-		return fmt.Errorf("unable to create sheets client: %v", err)
-	}
-
-	writeRange := fmt.Sprintf("%s!A:Z", sheetName)
-	valueRange := &sheets.ValueRange{
-		Values: [][]interface{}{values},
-	}
-
-	_, err = srv.Spreadsheets.Values.Append(spreadsheetID, writeRange, valueRange).
-		ValueInputOption("USER_ENTERED").
-		Do()
-	if err != nil {
-		return fmt.Errorf("unable to append data: %v", err)
 	}
 
 	// log.Println("Data berhasil ditambahkan ke sheet:", sheetName)

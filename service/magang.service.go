@@ -1,9 +1,6 @@
 package service
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/HMTCITS/hmtc-backend-2025/config"
 	"github.com/HMTCITS/hmtc-backend-2025/dto"
 )
@@ -11,7 +8,6 @@ import (
 type MagangService interface {
 	UploadFile(fileBytes []byte, filename string) (string, error)
 	UploadToSheet(form dto.UploadDTO, fileURL string) error
-	UploadToSheetSA(data map[string]interface{}) error
 }
 
 type magangService struct {
@@ -74,29 +70,4 @@ func (ms *magangService) UploadToSheet(form dto.UploadDTO, fileURL string) error
 
 	// 3. Kirim ke Google Sheets
 	return ms.sheetsService.AppendRow(spreadsheetID, sheetName, values)
-}
-
-func (ms *magangService) UploadToSheetSA(data map[string]interface{}) error {
-	spreadsheetID := config.AppConfig.SheetsID
-	sheetName := config.AppConfig.SheetsName
-	credsFile := "service-account.json"
-
-	// ubah data menjadi array interface
-	values := []interface{}{
-		data["nama"],
-		data["nrp"],
-		data["kelompok_kp"],
-		data["file_url"],
-		// data["pertanyaan_umum"],
-		// data["divisi_dipilih"],
-		// data["pertanyaan_divisi"],
-	}
-
-	// panggil fungsi helper service account
-	err := ms.sheetsService.AppendRowServiceAccount(credsFile, spreadsheetID, sheetName, values)
-	if err != nil {
-		log.Println("Gagal upload ke spreadsheet (SA):", err)
-		return fmt.Errorf("upload spreadsheet error: %v", err)
-	}
-	return nil
 }
