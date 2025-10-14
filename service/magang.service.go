@@ -3,8 +3,8 @@ package service
 import (
 	"fmt"
 	"log"
-	"time"
 
+	"github.com/HMTCITS/hmtc-backend-2025/config"
 	"github.com/HMTCITS/hmtc-backend-2025/dto"
 )
 
@@ -28,16 +28,17 @@ func NewMagangService(ds DriveService, ss SheetsService) MagangService {
 
 func (ms *magangService) UploadFile(fileBytes []byte, filename string) (string, error) {
 	// ID folder magang
-	const folderID = "1IVZqff-KivZFFrBTMqZOcEn4JhMF5J_1"
+	folderID := config.AppConfig.GDriveFolderID
 	return ms.driveService.UploadFileToDrive(fileBytes, filename, folderID)
 }
+
 func (ms *magangService) UploadToSheet(form dto.UploadDTO, fileURL string) error {
-	const spreadsheetID = "1188huzNIVi0vuxdvInPUtx1XeFhWuNhpKiVFyc7U51s"
-	sheetName := "from web"
+	spreadsheetID := config.AppConfig.SheetsID
+	sheetName := config.AppConfig.SheetsName
 
 	// 1. Base fields
 	values := []interface{}{
-		time.Now().Format("2006-01-02 15:04:05"),
+		// time.Now().Format("2006-01-02 15:04:05"),
 		form.Nama,
 		form.NRP,
 		form.KelompokKP,
@@ -76,8 +77,8 @@ func (ms *magangService) UploadToSheet(form dto.UploadDTO, fileURL string) error
 }
 
 func (ms *magangService) UploadToSheetSA(data map[string]interface{}) error {
-	const spreadsheetID = "1188huzNIVi0vuxdvInPUtx1XeFhWuNhpKiVFyc7U51s"
-	sheetName := "from web"
+	spreadsheetID := config.AppConfig.SheetsID
+	sheetName := config.AppConfig.SheetsName
 	credsFile := "service-account.json"
 
 	// ubah data menjadi array interface

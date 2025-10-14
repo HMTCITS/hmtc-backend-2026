@@ -20,6 +20,9 @@ type Config struct {
 	OauthClientID     string
 	OauthClientSecret string
 	RedirectURL       string
+	GDriveFolderID    string
+	SheetsID          string
+	SheetsName        string
 }
 
 var AppConfig *Config
@@ -42,6 +45,9 @@ func LoadConfig() {
 		OauthClientID:     getEnv("OAUTH_CLIENT_ID", ""),
 		OauthClientSecret: getEnv("OAUTH_CLIENT_SECRET", ""),
 		RedirectURL:       getEnv("REDIRECT_URL", ""),
+		GDriveFolderID:    getEnv("GDRIVE_FOLDER_ID", ""),
+		SheetsID:          getEnv("SHEETS_ID", ""),
+		SheetsName:        getEnv("SHEETS_NAME", ""),
 	}
 
 	log.Println("Configuration loaded successfully")
