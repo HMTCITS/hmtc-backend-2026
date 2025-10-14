@@ -24,15 +24,21 @@ import (
 var (
 	db *gorm.DB = config.ConnectDatabase()
 
-	userRepo      repository.UserRepository      = repository.NewUserRepository(db)
-	shortLinkRepo repository.ShortLinkRepository = repository.NewShortLinkRepository(db)
+	userRepo        repository.UserRepository        = repository.NewUserRepository(db)
+	shortLinkRepo   repository.ShortLinkRepository   = repository.NewShortLinkRepository(db)
+	fileTARepo      repository.FileTARepository      = repository.NewFileTARepository(db)
+	userFileReqRepo repository.UserFileReqRepository = repository.NewUserFileRepository(db)
 
-	userService      service.UserService      = service.NewUserService(userRepo)
-	shortLinkService service.ShortLinkService = service.NewShortLinkService(shortLinkRepo)
+	userService        service.UserService        = service.NewUserService(userRepo)
+	shortLinkService   service.ShortLinkService   = service.NewShortLinkService(shortLinkRepo)
+	fileTAService      service.FileTAService      = service.NewFileTAService(fileTARepo, userFileReqRepo)
+	userFileReqService service.UserFileReqService = service.NewUserFileService(userFileReqRepo)
 
-	userController      controller.UserController      = controller.NewUserController(userService)
-	healthController    controller.HealthController    = controller.NewHealthController()
-	shortLinkController controller.ShortLinkController = controller.NewShortLinkController(shortLinkService)
+	userController        controller.UserController        = controller.NewUserController(userService)
+	healthController      controller.HealthController      = controller.NewHealthController()
+	shortLinkController   controller.ShortLinkController   = controller.NewShortLinkController(shortLinkService)
+	fileTAController      controller.FileTAController      = controller.NewFileTAController(fileTAService)
+	userFileReqController controller.UserFileReqController = controller.NewUserFileReqController(userFileReqService)
 )
 
 // @title	hmtc documentation
@@ -52,6 +58,18 @@ func main() {
 	// add swagger
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.Health(server, healthController)
+	router.FileTA(server, fileTAController)
+	router.UserFileReq(server, userFileReqController)
+	server.MaxMultipartMemory = 10 << 20
+
+	for _, arg := range os.Args {
+		if arg == "--migrate" {
+			if err := migration.Migrate(db); err != nil {
+				panic("Failed to migrate database")
+			}
+			return
+		}
+	}
 
 	if err := migration.Migrate(db); err != nil {
 		panic("Failed to migrate database")

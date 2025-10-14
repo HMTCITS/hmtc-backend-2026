@@ -9,7 +9,9 @@ func Migrate(db *gorm.DB) error {
 	err := db.AutoMigrate(
 		&model.User{},
 		&model.Departement{},
-		&model.LinkShortener{})
+		&model.LinkShortener{},
+		&model.TAFile{},
+		&model.UserFileReq{})
 	if err != nil {
 		return err
 	}
