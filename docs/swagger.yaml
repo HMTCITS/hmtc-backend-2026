@@ -14,11 +14,11 @@ definitions:
       status:
         type: boolean
     type: object
-host: localhost:3000
+host: localhost:5000
 info:
   contact: {}
-  description: API hmtc link shortener dan user
-  title: hmtc documentation
+  description: API Documentation
+  title: HMTC API Documentation
   version: "1.0"
 paths:
   /magang/get-token:

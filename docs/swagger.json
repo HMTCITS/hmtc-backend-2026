@@ -1,12 +1,12 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "API hmtc link shortener dan user",
-        "title": "hmtc documentation",
+        "description": "API Documentation",
+        "title": "HMTC API Documentation",
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:3000",
+    "host": "localhost:5000",
     "basePath": "/api",
     "paths": {
         "/magang/get-token": {
