@@ -7,6 +7,7 @@ import (
 
 	"strings"
 
+	"github.com/HMTCITS/hmtc-backend-2025/config"
 	"github.com/HMTCITS/hmtc-backend-2025/repository"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -25,15 +26,6 @@ func NewSheetsService() SheetsService {
 	return &sheetsService{}
 }
 
-var (
-	ClientID     = "506226776429-7mmjoitqt3jr1g68ett370nmakh4lhka.apps.googleusercontent.com"
-	ClientSecret = "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"
-)
-
-// -------------------------------------------
-// 3. CLIENT DENGAN TOKEN YANG VALID (AUTO REFRESH)
-// -------------------------------------------
-
 func getSheetsClient() (*sheets.Service, error) {
 	ctx := context.Background()
 
@@ -45,8 +37,8 @@ func getSheetsClient() (*sheets.Service, error) {
 	token := &oauth2.Token{RefreshToken: refreshToken}
 
 	config := &oauth2.Config{
-		ClientID:     ClientID,
-		ClientSecret: ClientSecret,
+		ClientID:     config.AppConfig.OauthClientID,
+		ClientSecret: config.AppConfig.OauthClientSecret,
 		Endpoint:     google.Endpoint,
 		Scopes:       []string{sheets.SpreadsheetsScope},
 	}

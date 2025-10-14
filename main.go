@@ -4,58 +4,60 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/HMTCITS/hmtc-backend-2025/controller"
 	_ "github.com/HMTCITS/hmtc-backend-2025/docs"
+	"github.com/HMTCITS/hmtc-backend-2025/repository"
+	"github.com/HMTCITS/hmtc-backend-2025/service"
+	"gorm.io/gorm"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"github.com/HMTCITS/hmtc-backend-2025/config"
-	"github.com/HMTCITS/hmtc-backend-2025/controller"
 	"github.com/HMTCITS/hmtc-backend-2025/middleware"
 	"github.com/HMTCITS/hmtc-backend-2025/migration"
-	"github.com/HMTCITS/hmtc-backend-2025/repository"
 	"github.com/HMTCITS/hmtc-backend-2025/router"
-	"github.com/HMTCITS/hmtc-backend-2025/service"
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
-	"gorm.io/gorm"
 )
 
-var (
-	db *gorm.DB = config.ConnectDatabase()
-
-	userRepo      repository.UserRepository      = repository.NewUserRepository(db)
-	shortLinkRepo repository.ShortLinkRepository = repository.NewShortLinkRepository(db)
-
-	userService      service.UserService      = service.NewUserService(userRepo)
-	shortLinkService service.ShortLinkService = service.NewShortLinkService(shortLinkRepo)
-	driveService     service.DriveService     = service.NewDriveService()
-	sheetsService    service.SheetsService    = service.NewSheetsService()
-	magangService    service.MagangService    = service.NewMagangService(driveService, sheetsService)
-
-	userController      controller.UserController      = controller.NewUserController(userService)
-	healthController    controller.HealthController    = controller.NewHealthController()
-	shortLinkController controller.ShortLinkController = controller.NewShortLinkController(shortLinkService)
-	magangController    controller.MagangController    = controller.NewMagangController(magangService)
-)
-
-// @title	hmtc documentation
+// @title HMTC API Documentation
 // @version 1.0
-// @description API hmtc link shortener dan user
-// @host localhost:3000
+// @description API Documentation
+// @host localhost:5000
 // @BasePath /api
 func main() {
 	fmt.Println("Backend HMTC 2025")
 
+	config.LoadConfig()
+
+	var db *gorm.DB = config.ConnectDatabase()
+
 	defer config.CloseDatabase(db)
+
+	var (
+		userRepo      repository.UserRepository      = repository.NewUserRepository(db)
+		shortLinkRepo repository.ShortLinkRepository = repository.NewShortLinkRepository(db)
+
+		userService      service.UserService      = service.NewUserService(userRepo)
+		shortLinkService service.ShortLinkService = service.NewShortLinkService(shortLinkRepo)
+		driveService     service.DriveService     = service.NewDriveService()
+		sheetsService    service.SheetsService    = service.NewSheetsService()
+		magangService    service.MagangService    = service.NewMagangService(driveService, sheetsService)
+
+		userController      controller.UserController      = controller.NewUserController(userService)
+		healthController    controller.HealthController    = controller.NewHealthController()
+		shortLinkController controller.ShortLinkController = controller.NewShortLinkController(shortLinkService)
+		magangController    controller.MagangController    = controller.NewMagangController(magangService)
+	)
 
 	server := gin.Default()
 	server.Use(middleware.CORSMiddleware())
+	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	router.User(server, userController)
 	router.ShortLink(server, shortLinkController)
 	router.Magang(server, magangController)
-	// add swagger
-	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.Health(server, healthController)
 
 	if err := migration.Migrate(db); err != nil {

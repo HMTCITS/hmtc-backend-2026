@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"log"
 
+	"github.com/HMTCITS/hmtc-backend-2025/config"
 	"github.com/HMTCITS/hmtc-backend-2025/repository"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -22,11 +22,6 @@ func NewDriveService() DriveService {
 	return &driveService{}
 }
 
-var (
-	clientID     = "506226776429-7mmjoitqt3jr1g68ett370nmakh4lhka.apps.googleusercontent.com"
-	clientSecret = "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"
-)
-
 func getDriveClient() (*drive.Service, error) {
 	refreshToken, err := repository.LoadRefreshToken()
 	if err != nil {
@@ -35,8 +30,8 @@ func getDriveClient() (*drive.Service, error) {
 
 	token := &oauth2.Token{RefreshToken: refreshToken}
 	config := &oauth2.Config{
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
+		ClientID:     config.AppConfig.OauthClientID,
+		ClientSecret: config.AppConfig.OauthClientSecret,
 		Endpoint:     google.Endpoint,
 		Scopes:       []string{drive.DriveFileScope},
 	}
@@ -62,6 +57,6 @@ func (ds *driveService) UploadFileToDrive(fileBytes []byte, filename, folderID s
 	}
 
 	fileURL := fmt.Sprintf("https://drive.google.com/uc?id=%s", uploadedFile.Id)
-	log.Println("Upload berhasil:", filename, fileURL)
+	// log.Println("Upload berhasil:", filename, fileURL)
 	return fileURL, nil
 }

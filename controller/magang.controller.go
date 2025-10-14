@@ -8,18 +8,13 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/HMTCITS/hmtc-backend-2025/config"
 	"github.com/HMTCITS/hmtc-backend-2025/dto"
 	"github.com/HMTCITS/hmtc-backend-2025/repository"
 	"github.com/HMTCITS/hmtc-backend-2025/service"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-)
-
-var (
-	clientID     = "506226776429-7mmjoitqt3jr1g68ett370nmakh4lhka.apps.googleusercontent.com"
-	clientSecret = "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"
-	redirectURL  = "http://localhost:5000/api/magang/oauth2callback"
 )
 
 type MagangController interface {
@@ -47,14 +42,14 @@ func NewMagangController(ms service.MagangService) MagangController {
 // @Router /magang/get-token [get]
 func (mc *magangController) GetToken(ctx *gin.Context) {
 	config := &oauth2.Config{
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
+		ClientID:     config.AppConfig.OauthClientID,
+		ClientSecret: config.AppConfig.OauthClientSecret,
 		Endpoint:     google.Endpoint,
 		Scopes: []string{
 			"https://www.googleapis.com/auth/drive.file",
 			"https://www.googleapis.com/auth/spreadsheets",
 		},
-		RedirectURL: redirectURL,
+		RedirectURL: config.AppConfig.RedirectURL,
 	}
 	url := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 	ctx.Data(http.StatusOK, "text/html", []byte(fmt.Sprintf(`<a href="%s" target="_blank">Login with Google to get refresh token</a>`, url)))
@@ -68,14 +63,14 @@ func (mc *magangController) Callback(ctx *gin.Context) {
 	}
 
 	config := &oauth2.Config{
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
+		ClientID:     config.AppConfig.OauthClientID,
+		ClientSecret: config.AppConfig.OauthClientSecret,
 		Endpoint:     google.Endpoint,
 		Scopes: []string{
 			"https://www.googleapis.com/auth/drive.file",
 			"https://www.googleapis.com/auth/spreadsheets",
 		},
-		RedirectURL: redirectURL,
+		RedirectURL: config.AppConfig.RedirectURL,
 	}
 
 	token, err := config.Exchange(context.Background(), code)
@@ -116,100 +111,7 @@ func (mc *magangController) Callback(ctx *gin.Context) {
 // @Failure 400 {object} map[string]string{error=string}
 // @Failure 500 {object} map[string]string{error=string}
 // @Router /magang/upload [post]
-// func (mc *magangController) Upload(ctx *gin.Context) {
-// 	// Bind data form ke struct (kecuali file)
-// 	var form dto.UploadDTO
-// 	if err := ctx.ShouldBind(&form); err != nil {
-// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	log.Println(form)
-
-// 	// Validasi jumlah divisi
-// 	if len(form.DivisiDipilih) < 1 || len(form.DivisiDipilih) > 3 {
-// 		ctx.JSON(http.StatusBadRequest, gin.H{
-// 			"error": "Harus memilih minimal 1 dan maksimal 3 divisi",
-// 		})
-// 		return
-// 	}
-
-// 	// Ambil file ZIP dari form
-// 	// fileHeader, err := ctx.FormFile("file_zip")
-// 	// if err != nil {
-// 	// 	ctx.JSON(http.StatusBadRequest, gin.H{"error": "File ZIP wajib"})
-// 	// 	return
-// 	// }
-
-// 	// fileObj, err := fileHeader.Open()
-// 	// if err != nil {
-// 	// 	ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membuka file"})
-// 	// 	return
-// 	// }
-// 	// defer fileObj.Close()
-
-// 	// fileBytes, err := io.ReadAll(fileObj)
-// 	// if err != nil {
-// 	// 	ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membaca file"})
-// 	// 	return
-// 	// }
-
-// 	// // Upload ke Google Drive
-// 	// fileURL, err := mc.magangService.UploadFile(fileBytes, fileHeader.Filename)
-// 	// if err != nil {
-// 	// 	ctx.JSON(http.StatusInternalServerError, gin.H{
-// 	// 		"error": "Gagal upload file: " + err.Error(),
-// 	// 	})
-// 	// 	return
-// 	// }
-
-// 	fileURL := "https://drive.google.com/uc?id=1a2b3c4d5e6f7g8h9i0j" // Dummy URL untuk testing tanpa upload file
-
-// 	// Kirim ke Sheets (langsung pakai DTO)
-// 	if err := mc.magangService.UploadToSheet(form, fileURL); err != nil {
-// 		log.Println("Gagal upload ke spreadsheet:", err)
-// 		ctx.JSON(http.StatusInternalServerError, gin.H{
-// 			"error": "Gagal upload ke spreadsheet: " + err.Error(),
-// 		})
-// 		return
-// 	}
-
-// 	// Response sukses
-// 	ctx.JSON(http.StatusOK, gin.H{
-// 		"message": "Upload berhasil",
-// 		"fileUrl": fileURL,
-// 		"data":    form,
-// 	})
-// }
-
-// Upload godoc
-// @Summary Upload dokumen magang
-// @Description Upload satu file ZIP berisi CV, Brainmap, Portofolio beserta jawaban pertanyaan umum dan divisi
-// @Tags Magang
-// @Accept multipart/form-data
-// @Produce json
-// @Param nama formData string true "Nama mahasiswa"
-// @Param nrp formData string true "NRP mahasiswa"
-// @Param kelompok_kp formData string true "Kelompok KP"
-// @Param pertanyaan_umum[q1] formData string true "Pertanyaan umum Q1"
-// @Param pertanyaan_umum[q2] formData string true "Pertanyaan umum Q2"
-// @Param pertanyaan_umum[q3] formData string true "Pertanyaan umum Q3"
-// @Param divisi_dipilih formData []string true "Divisi yang dipilih (min 1, max 3)" collectionFormat(multi) Enums(Marketing,Finance,IT,HR,CMI)
-// @Param pertanyaan_divisi[Marketing][q1] formData string false "Soal 1 Marketing"
-// @Param pertanyaan_divisi[Marketing][q2] formData string false "Soal 2 Marketing"
-// @Param pertanyaan_divisi[Marketing][q3] formData string false "Soal 3 Marketing"
-// @Param pertanyaan_divisi[Marketing][q4] formData string false "Soal 4 Marketing"
-// @Param pertanyaan_divisi[Marketing][q5] formData string false "Soal 5 Marketing"
-// (Ulangi untuk setiap divisi yang mungkin dipilih)
-// @Param file_zip formData file true "File ZIP berisi CV, Brainmap, Portofolio"
-// @Success 200 {object} map[string]interface{} "File URL dan data form"
-// @Failure 400 {object} map[string]string{error=string}
-// @Failure 500 {object} map[string]string{error=string}
-// @Router /magang/upload [post]
 func (mc *magangController) Upload(ctx *gin.Context) {
-	log.Println("=== MULAI UPLOAD ===")
-	log.Println("Content-Type:", ctx.GetHeader("Content-Type"))
-	log.Println("Form data:", ctx)
 	var form dto.UploadDTO
 
 	form.Nama = ctx.PostForm("nama")
