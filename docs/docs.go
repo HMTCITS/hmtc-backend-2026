@@ -15,527 +15,186 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/admin": {
+        "/magang/get-token": {
             "get": {
-                "description": "show admin info nrp, departemen",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
+                "description": "Mendapatkan URL untuk login Google OAuth dan mendapatkan refresh token",
                 "produces": [
-                    "application/json"
+                    "text/html"
                 ],
                 "tags": [
-                    "user"
+                    "Magang"
                 ],
-                "summary": "show admin info (only for admin)",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "user",
-                        "name": "user",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
+                "summary": "Generate login URL untuk developer",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "HTML link untuk login Google",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/utils.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.UserMeRes"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "forbidden",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/utils.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "error": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server or database error",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/utils.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "error": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
+                            "type": "string"
                         }
                     }
                 }
             }
         },
-        "/auth/getuser": {
-            "get": {
-                "description": "Ambil user berdasarkan NRP",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "Get User NRP",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Nomor Registrasi Pokok",
-                        "name": "nrp",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/utils.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.UserGetByNRPRes"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Validation failed or NRP kosong",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/utils.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "error": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server or database error",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/utils.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "error": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/login": {
+        "/magang/upload": {
             "post": {
-                "description": "login dengan nrp",
+                "description": "Upload satu file ZIP berisi CV, Brainmap, Portofolio beserta jawaban pertanyaan umum dan divisi",
                 "consumes": [
-                    "application/x-www-form-urlencoded"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "Magang"
                 ],
-                "summary": "Login",
+                "summary": "Upload dokumen magang",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "nrp mahasiswa",
-                        "name": "nrp",
+                        "description": "Nama mahasiswa",
+                        "name": "nama",
                         "in": "formData",
                         "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/utils.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.UserLoginRes"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "nrp harus diisi",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/utils.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "error": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server or database error",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/utils.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "error": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/logout": {
-            "post": {
-                "description": "logout",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "logout",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "access token",
-                        "name": "accessToken",
-                        "in": "header",
-                        "required": true
                     },
                     {
                         "type": "string",
-                        "description": "refresh token",
-                        "name": "refreshToken",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/me": {
-            "get": {
-                "description": "show user info nrp, departemen",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "show user info",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "user",
-                        "name": "user",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/utils.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.UserMeRes"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "unauthorized",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/utils.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "error": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server or database error",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/utils.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "error": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/refresh": {
-            "post": {
-                "description": "refresh token buat accessToken baru",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "Refresh token",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "refresh token",
-                        "name": "refreshToken",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/utils.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.UserRefreshRes"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "unauthorized",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/utils.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "error": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server or database error",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/utils.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "error": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/register": {
-            "post": {
-                "description": "Register user dengan NRP dan asal departemen",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "Registrasi user",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "nrp mahasiswa",
+                        "description": "NRP mahasiswa",
                         "name": "nrp",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "asal departemen",
-                        "name": "departement_name",
+                        "description": "Kelompok KP",
+                        "name": "kelompok_kp",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Pertanyaan umum Q1",
+                        "name": "pertanyaan_umum[q1]",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Pertanyaan umum Q2",
+                        "name": "pertanyaan_umum[q2]",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Pertanyaan umum Q3",
+                        "name": "pertanyaan_umum[q3]",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "Marketing",
+                                "Finance",
+                                "IT",
+                                "HR",
+                                "CMI"
+                            ],
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Divisi yang dipilih (min 1, max 3)",
+                        "name": "divisi_dipilih",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Soal 1 Marketing",
+                        "name": "pertanyaan_divisi[Marketing][q1]",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Soal 2 Marketing",
+                        "name": "pertanyaan_divisi[Marketing][q2]",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Soal 3 Marketing",
+                        "name": "pertanyaan_divisi[Marketing][q3]",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Soal 4 Marketing",
+                        "name": "pertanyaan_divisi[Marketing][q4]",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Soal 5 Marketing",
+                        "name": "pertanyaan_divisi[Marketing][q5]",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "File ZIP berisi CV, Brainmap, Portofolio",
+                        "name": "file_zip",
                         "in": "formData",
                         "required": true
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Created",
+                    "200": {
+                        "description": "File URL dan data form",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/utils.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.ShortLinkDtoRes"
-                                        }
-                                    }
-                                }
-                            ]
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "400": {
-                        "description": "Validation failed or bad request",
+                        "description": "Bad Request",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/utils.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "error": {
-                                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "allOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "error": {
+                                                "type": "string"
+                                            }
                                         }
                                     }
-                                }
-                            ]
+                                ]
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal server or database error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/utils.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "error": {
-                                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "allOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "error": {
+                                                "type": "string"
+                                            }
                                         }
                                     }
-                                }
-                            ]
+                                ]
+                            }
                         }
                     }
                 }
@@ -706,50 +365,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.UserGetByNRPRes": {
-            "type": "object",
-            "properties": {
-                "departement_name": {
-                    "type": "string"
-                },
-                "nrp": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.UserLoginRes": {
-            "type": "object",
-            "properties": {
-                "accessToken": {
-                    "type": "string"
-                },
-                "refreshToken": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.UserMeRes": {
-            "type": "object",
-            "properties": {
-                "departement_name": {
-                    "type": "string"
-                },
-                "nrp": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.UserRefreshRes": {
-            "type": "object",
-            "properties": {
-                "accessToken": {
-                    "type": "string"
-                },
-                "refreshToken": {
-                    "type": "string"
-                }
-            }
-        },
         "utils.Response": {
             "type": "object",
             "properties": {
@@ -769,11 +384,11 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:3000",
+	Host:             "localhost:5000",
 	BasePath:         "/api",
 	Schemes:          []string{},
-	Title:            "hmtc documentation",
-	Description:      "API hmtc link shortener dan user",
+	Title:            "HMTC API Documentation",
+	Description:      "API Documentation",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

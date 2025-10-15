@@ -5,34 +5,6 @@ definitions:
       shortlink:
         type: string
     type: object
-  dto.UserGetByNRPRes:
-    properties:
-      departement_name:
-        type: string
-      nrp:
-        type: string
-    type: object
-  dto.UserLoginRes:
-    properties:
-      accessToken:
-        type: string
-      refreshToken:
-        type: string
-    type: object
-  dto.UserMeRes:
-    properties:
-      departement_name:
-        type: string
-      nrp:
-        type: string
-    type: object
-  dto.UserRefreshRes:
-    properties:
-      accessToken:
-        type: string
-      refreshToken:
-        type: string
-    type: object
   utils.Response:
     properties:
       data: {}
@@ -42,308 +14,136 @@ definitions:
       status:
         type: boolean
     type: object
-host: localhost:3000
+host: localhost:5000
 info:
   contact: {}
-  description: API hmtc link shortener dan user
-  title: hmtc documentation
+  description: API Documentation
+  title: HMTC API Documentation
   version: "1.0"
 paths:
-  /auth/admin:
+  /magang/get-token:
     get:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: show admin info nrp, departemen
-      parameters:
-      - description: user
-        in: header
-        name: user
-        required: true
-        type: string
+      description: Mendapatkan URL untuk login Google OAuth dan mendapatkan refresh
+        token
       produces:
-      - application/json
+      - text/html
       responses:
         "200":
-          description: OK
+          description: HTML link untuk login Google
           schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.UserMeRes'
-              type: object
-        "400":
-          description: forbidden
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                error:
-                  type: string
-              type: object
-        "500":
-          description: Internal server or database error
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                error:
-                  type: string
-              type: object
-      summary: show admin info (only for admin)
+            type: string
+      summary: Generate login URL untuk developer
       tags:
-      - user
-  /auth/getuser:
-    get:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Ambil user berdasarkan NRP
-      parameters:
-      - description: Nomor Registrasi Pokok
-        in: query
-        name: nrp
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.UserGetByNRPRes'
-              type: object
-        "400":
-          description: Validation failed or NRP kosong
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                error:
-                  type: string
-              type: object
-        "500":
-          description: Internal server or database error
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                error:
-                  type: string
-              type: object
-      summary: Get User NRP
-      tags:
-      - user
-  /auth/login:
+      - Magang
+  /magang/upload:
     post:
       consumes:
-      - application/x-www-form-urlencoded
-      description: login dengan nrp
+      - multipart/form-data
+      description: Upload satu file ZIP berisi CV, Brainmap, Portofolio beserta jawaban
+        pertanyaan umum dan divisi
       parameters:
-      - description: nrp mahasiswa
+      - description: Nama mahasiswa
+        in: formData
+        name: nama
+        required: true
+        type: string
+      - description: NRP mahasiswa
         in: formData
         name: nrp
         required: true
         type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.UserLoginRes'
-              type: object
-        "400":
-          description: nrp harus diisi
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                error:
-                  type: string
-              type: object
-        "500":
-          description: Internal server or database error
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                error:
-                  type: string
-              type: object
-      summary: Login
-      tags:
-      - user
-  /auth/logout:
-    post:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: logout
-      parameters:
-      - description: access token
-        in: header
-        name: accessToken
-        required: true
-        type: string
-      - description: refresh token
-        in: header
-        name: refreshToken
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/utils.Response'
-      summary: logout
-      tags:
-      - user
-  /auth/me:
-    get:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: show user info nrp, departemen
-      parameters:
-      - description: user
-        in: header
-        name: user
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.UserMeRes'
-              type: object
-        "400":
-          description: unauthorized
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                error:
-                  type: string
-              type: object
-        "500":
-          description: Internal server or database error
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                error:
-                  type: string
-              type: object
-      summary: show user info
-      tags:
-      - user
-  /auth/refresh:
-    post:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: refresh token buat accessToken baru
-      parameters:
-      - description: refresh token
-        in: header
-        name: refreshToken
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.UserRefreshRes'
-              type: object
-        "400":
-          description: unauthorized
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                error:
-                  type: string
-              type: object
-        "500":
-          description: Internal server or database error
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                error:
-                  type: string
-              type: object
-      summary: Refresh token
-      tags:
-      - user
-  /auth/register:
-    post:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Register user dengan NRP dan asal departemen
-      parameters:
-      - description: nrp mahasiswa
+      - description: Kelompok KP
         in: formData
-        name: nrp
+        name: kelompok_kp
         required: true
         type: string
-      - description: asal departemen
+      - description: Pertanyaan umum Q1
         in: formData
-        name: departement_name
+        name: pertanyaan_umum[q1]
         required: true
         type: string
+      - description: Pertanyaan umum Q2
+        in: formData
+        name: pertanyaan_umum[q2]
+        required: true
+        type: string
+      - description: Pertanyaan umum Q3
+        in: formData
+        name: pertanyaan_umum[q3]
+        required: true
+        type: string
+      - collectionFormat: multi
+        description: Divisi yang dipilih (min 1, max 3)
+        in: formData
+        items:
+          enum:
+          - Marketing
+          - Finance
+          - IT
+          - HR
+          - CMI
+          type: string
+        name: divisi_dipilih
+        required: true
+        type: array
+      - description: Soal 1 Marketing
+        in: formData
+        name: pertanyaan_divisi[Marketing][q1]
+        type: string
+      - description: Soal 2 Marketing
+        in: formData
+        name: pertanyaan_divisi[Marketing][q2]
+        type: string
+      - description: Soal 3 Marketing
+        in: formData
+        name: pertanyaan_divisi[Marketing][q3]
+        type: string
+      - description: Soal 4 Marketing
+        in: formData
+        name: pertanyaan_divisi[Marketing][q4]
+        type: string
+      - description: Soal 5 Marketing
+        in: formData
+        name: pertanyaan_divisi[Marketing][q5]
+        type: string
+      - description: File ZIP berisi CV, Brainmap, Portofolio
+        in: formData
+        name: file_zip
+        required: true
+        type: file
       produces:
       - application/json
       responses:
-        "201":
-          description: Created
+        "200":
+          description: File URL dan data form
           schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.ShortLinkDtoRes'
-              type: object
+            additionalProperties: true
+            type: object
         "400":
-          description: Validation failed or bad request
+          description: Bad Request
           schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                error:
-                  type: string
-              type: object
+            additionalProperties:
+              allOf:
+              - type: string
+              - properties:
+                  error:
+                    type: string
+                type: object
+            type: object
         "500":
-          description: Internal server or database error
+          description: Internal Server Error
           schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                error:
-                  type: string
-              type: object
-      summary: Registrasi user
+            additionalProperties:
+              allOf:
+              - type: string
+              - properties:
+                  error:
+                    type: string
+                type: object
+            type: object
+      summary: Upload dokumen magang
       tags:
-      - user
+      - Magang
   /shortlink/generate:
     post:
       consumes:
