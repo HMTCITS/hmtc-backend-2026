@@ -16,14 +16,18 @@ type DriveService interface {
 	UploadFileToDrive(fileBytes []byte, filename, folderID string) (string, error)
 }
 
-type driveService struct{}
-
-func NewDriveService() DriveService {
-	return &driveService{}
+type driveService struct {
+	oauthTokenRepo repository.OAuthTokenRepository
 }
 
-func getDriveClient() (*drive.Service, error) {
-	refreshToken, err := repository.LoadRefreshToken()
+func NewDriveService(oauthTokenRepo repository.OAuthTokenRepository) DriveService {
+	return &driveService{
+		oauthTokenRepo: oauthTokenRepo,
+	}
+}
+
+func (ds *driveService) getDriveClient() (*drive.Service, error) {
+	refreshToken, err := ds.oauthTokenRepo.Get()
 	if err != nil {
 		return nil, fmt.Errorf("refresh token kosong: %v", err)
 	}
@@ -41,7 +45,7 @@ func getDriveClient() (*drive.Service, error) {
 }
 
 func (ds *driveService) UploadFileToDrive(fileBytes []byte, filename, folderID string) (string, error) {
-	srv, err := getDriveClient()
+	srv, err := ds.getDriveClient()
 	if err != nil {
 		return "", err
 	}

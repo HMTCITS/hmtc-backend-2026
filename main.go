@@ -36,19 +36,20 @@ func main() {
 	defer config.CloseDatabase(db)
 
 	var (
-		userRepo      repository.UserRepository      = repository.NewUserRepository(db)
-		shortLinkRepo repository.ShortLinkRepository = repository.NewShortLinkRepository(db)
+		userRepo       repository.UserRepository       = repository.NewUserRepository(db)
+		shortLinkRepo  repository.ShortLinkRepository  = repository.NewShortLinkRepository(db)
+		oauthTokenRepo repository.OAuthTokenRepository = repository.NewOAuthTokenRepo(db)
 
 		userService      service.UserService      = service.NewUserService(userRepo)
 		shortLinkService service.ShortLinkService = service.NewShortLinkService(shortLinkRepo)
-		driveService     service.DriveService     = service.NewDriveService()
-		sheetsService    service.SheetsService    = service.NewSheetsService()
+		driveService     service.DriveService     = service.NewDriveService(oauthTokenRepo)
+		sheetsService    service.SheetsService    = service.NewSheetsService(oauthTokenRepo)
 		magangService    service.MagangService    = service.NewMagangService(driveService, sheetsService)
 
 		userController      controller.UserController      = controller.NewUserController(userService)
 		healthController    controller.HealthController    = controller.NewHealthController()
 		shortLinkController controller.ShortLinkController = controller.NewShortLinkController(shortLinkService)
-		magangController    controller.MagangController    = controller.NewMagangController(magangService)
+		magangController    controller.MagangController    = controller.NewMagangController(magangService, oauthTokenRepo)
 	)
 
 	server := gin.Default()
@@ -73,11 +74,3 @@ func main() {
 		panic(err.Error())
 	}
 }
-
-// {
-//   "refresh_token": "1//0gxVtlrj2xfG7CgYIARAAGBASNwF-L9IrscPtyWRmB3sTV_LWuAy2oJeRGXGyuYIXKuuUwZYM0u-zFE089UUgBu5runoQ5jsnAQQ"
-// }
-
-// {
-//   "refresh_token": "1//0gU-KpcfnqQNZCgYIARAAGBASNwF-L9Irp93-wJbNI5mSAu2AaW7i3WEJJ3dSgGsQU0oAkpSbeiFiUyaf3HDm8CO453oxh3omsVw"
-// }

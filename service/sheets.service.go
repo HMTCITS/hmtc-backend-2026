@@ -19,16 +19,20 @@ type SheetsService interface {
 	AppendRow(spreadsheetID string, sheetName string, values []interface{}) error
 }
 
-type sheetsService struct{}
-
-func NewSheetsService() SheetsService {
-	return &sheetsService{}
+type sheetsService struct {
+	oauthTokenRepo repository.OAuthTokenRepository
 }
 
-func getSheetsClient() (*sheets.Service, error) {
+func NewSheetsService(oauthTokenRepo repository.OAuthTokenRepository) SheetsService {
+	return &sheetsService{
+		oauthTokenRepo: oauthTokenRepo,
+	}
+}
+
+func (ss *sheetsService) getSheetsClient() (*sheets.Service, error) {
 	ctx := context.Background()
 
-	refreshToken, err := repository.LoadRefreshToken()
+	refreshToken, err := ss.oauthTokenRepo.Get()
 	if err != nil {
 		return nil, fmt.Errorf("refresh token kosong: %v", err)
 	}
@@ -105,7 +109,7 @@ func normalizeValue(v interface{}) interface{} {
 }
 
 func (ss *sheetsService) AppendRow(spreadsheetID string, sheetName string, values []interface{}) error {
-	srv, err := getSheetsClient()
+	srv, err := ss.getSheetsClient()
 	if err != nil {
 		return err
 	}

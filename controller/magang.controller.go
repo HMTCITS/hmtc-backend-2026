@@ -15,6 +15,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"google.golang.org/api/drive/v3"
+	"google.golang.org/api/sheets/v4"
 )
 
 type MagangController interface {
@@ -24,12 +26,14 @@ type MagangController interface {
 }
 
 type magangController struct {
-	magangService service.MagangService
+	magangService  service.MagangService
+	oauthTokenRepo repository.OAuthTokenRepository
 }
 
-func NewMagangController(ms service.MagangService) MagangController {
+func NewMagangController(ms service.MagangService, otr repository.OAuthTokenRepository) MagangController {
 	return &magangController{
-		magangService: ms,
+		magangService:  ms,
+		oauthTokenRepo: otr,
 	}
 }
 
@@ -46,8 +50,8 @@ func (mc *magangController) GetToken(ctx *gin.Context) {
 		ClientSecret: config.AppConfig.OauthClientSecret,
 		Endpoint:     google.Endpoint,
 		Scopes: []string{
-			"https://www.googleapis.com/auth/drive.file",
-			"https://www.googleapis.com/auth/spreadsheets",
+			drive.DriveFileScope,
+			sheets.SpreadsheetsScope,
 		},
 		RedirectURL: config.AppConfig.RedirectURL,
 	}
@@ -58,33 +62,39 @@ func (mc *magangController) GetToken(ctx *gin.Context) {
 func (mc *magangController) Callback(ctx *gin.Context) {
 	code := ctx.Query("code")
 	if code == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "No code in request"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "No code"})
 		return
 	}
 
-	config := &oauth2.Config{
+	cfg := &oauth2.Config{
 		ClientID:     config.AppConfig.OauthClientID,
 		ClientSecret: config.AppConfig.OauthClientSecret,
 		Endpoint:     google.Endpoint,
 		Scopes: []string{
-			"https://www.googleapis.com/auth/drive.file",
-			"https://www.googleapis.com/auth/spreadsheets",
+			drive.DriveFileScope,
+			sheets.SpreadsheetsScope,
 		},
 		RedirectURL: config.AppConfig.RedirectURL,
 	}
 
-	token, err := config.Exchange(context.Background(), code)
+	token, err := cfg.Exchange(context.Background(), code)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Token exchange error: " + err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "exchange error: " + err.Error()})
 		return
 	}
 
-	refreshToken := strings.TrimSpace(token.RefreshToken)
-	if err := repository.SaveRefreshToken(refreshToken); err != nil {
-		log.Println("Gagal simpan token:", err)
+	refresh := strings.TrimSpace(token.RefreshToken)
+	if refresh == "" {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "refresh token kosong dari provider"})
+		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"refreshToken": refreshToken})
+	if err := mc.oauthTokenRepo.Save(refresh); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "gagal simpan: " + err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"refresh_token": refresh})
 }
 
 // Upload godoc
