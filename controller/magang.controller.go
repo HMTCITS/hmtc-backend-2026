@@ -3,7 +3,6 @@ package controller
 import (
 	"context"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -159,17 +158,10 @@ func (mc *magangController) Upload(ctx *gin.Context) {
 		return
 	}
 
-	// Open and read file
 	fileObj, _ := fileHeader.Open()
 	defer fileObj.Close()
-	fileBytes, _ := io.ReadAll(fileObj)
 
-	// Upload ke Drive
-	fileURL, err := mc.magangService.UploadFile(fileBytes, fileHeader.Filename)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+	fileURL, err := mc.magangService.UploadFile(fileObj, fileHeader.Filename)
 
 	// Upload ke Google Sheets (pakai DTO langsung)
 	if err := mc.magangService.UploadToSheet(form, fileURL); err != nil {

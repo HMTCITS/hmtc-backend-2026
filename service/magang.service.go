@@ -1,12 +1,14 @@
 package service
 
 import (
+	"io"
+
 	"github.com/HMTCITS/hmtc-backend-2025/config"
 	"github.com/HMTCITS/hmtc-backend-2025/dto"
 )
 
 type MagangService interface {
-	UploadFile(fileBytes []byte, filename string) (string, error)
+	UploadFile(r io.Reader, filename string) (string, error)
 	UploadToSheet(form dto.UploadDTO, fileURL string) error
 }
 
@@ -22,10 +24,10 @@ func NewMagangService(ds DriveService, ss SheetsService) MagangService {
 	}
 }
 
-func (ms *magangService) UploadFile(fileBytes []byte, filename string) (string, error) {
-	// ID folder magang
+func (ms *magangService) UploadFile(r io.Reader, filename string) (string, error) {
 	folderID := config.AppConfig.GDriveFolderID
-	return ms.driveService.UploadFileToDrive(fileBytes, filename, folderID)
+
+	return ms.driveService.UploadFileToDrive(r, filename, folderID)
 }
 
 func (ms *magangService) UploadToSheet(form dto.UploadDTO, fileURL string) error {

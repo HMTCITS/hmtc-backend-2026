@@ -1,9 +1,9 @@
 package service
 
 import (
-	"bytes"
 	"context"
 	"fmt"
+	"io"
 
 	"github.com/HMTCITS/hmtc-backend-2025/config"
 	"github.com/HMTCITS/hmtc-backend-2025/repository"
@@ -13,7 +13,8 @@ import (
 )
 
 type DriveService interface {
-	UploadFileToDrive(fileBytes []byte, filename, folderID string) (string, error)
+	// UploadFileToDrive(fileBytes []byte, filename, folderID string) (string, error)
+	UploadFileToDrive(file io.Reader, filename, folderID string) (string, error)
 }
 
 type driveService struct {
@@ -44,7 +45,28 @@ func (ds *driveService) getDriveClient() (*drive.Service, error) {
 	return drive.New(client)
 }
 
-func (ds *driveService) UploadFileToDrive(fileBytes []byte, filename, folderID string) (string, error) {
+// func (ds *driveService) UploadFileToDrive(fileBytes []byte, filename, folderID string) (string, error) {
+// 	srv, err := ds.getDriveClient()
+// 	if err != nil {
+// 		return "", err
+// 	}
+
+// 	driveFile := &drive.File{
+// 		Name:    filename,
+// 		Parents: []string{folderID},
+// 	}
+
+// 	uploadedFile, err := srv.Files.Create(driveFile).Media(bytes.NewReader(fileBytes)).Do()
+// 	if err != nil {
+// 		return "", err
+// 	}
+
+// 	fileURL := fmt.Sprintf("https://drive.google.com/uc?id=%s", uploadedFile.Id)
+// 	// log.Println("Upload berhasil:", filename, fileURL)
+// 	return fileURL, nil
+// }
+
+func (ds *driveService) UploadFileToDrive(file io.Reader, filename, folderID string) (string, error) {
 	srv, err := ds.getDriveClient()
 	if err != nil {
 		return "", err
@@ -55,12 +77,10 @@ func (ds *driveService) UploadFileToDrive(fileBytes []byte, filename, folderID s
 		Parents: []string{folderID},
 	}
 
-	uploadedFile, err := srv.Files.Create(driveFile).Media(bytes.NewReader(fileBytes)).Do()
+	uploadedFile, err := srv.Files.Create(driveFile).Media(file).Do()
 	if err != nil {
 		return "", err
 	}
 
-	fileURL := fmt.Sprintf("https://drive.google.com/uc?id=%s", uploadedFile.Id)
-	// log.Println("Upload berhasil:", filename, fileURL)
-	return fileURL, nil
+	return fmt.Sprintf("https://drive.google.com/uc?id=%s", uploadedFile.Id), nil
 }
