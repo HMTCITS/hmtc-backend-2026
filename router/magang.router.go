@@ -11,7 +11,7 @@ func Magang(r *gin.Engine, mc controller.MagangController) {
 	{
 		routes.GET("/get-token", mc.GetToken)
 		routes.GET("/oauth2callback", mc.Callback)
-		// protect upload with schedule middleware
-		routes.POST("/upload", middleware.RequireScheduleUpload(), mc.Upload)
+		// protect upload with schedule middleware (explicit path provided)
+		routes.POST("/upload", middleware.RequireScheduleUpload("/api/magang/upload"), mc.Upload)
 	}
 }
