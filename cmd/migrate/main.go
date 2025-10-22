@@ -12,6 +12,9 @@ import (
 func main() {
 	fmt.Println("Running database migration...")
 
+	// load configuration from .env or environment variables
+	config.LoadConfig()
+
 	db := config.ConnectDatabase()
 	defer config.CloseDatabase(db)
 

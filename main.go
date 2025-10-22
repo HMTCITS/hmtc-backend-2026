@@ -54,6 +54,9 @@ func main() {
 
 	server := gin.Default()
 	server.Use(middleware.CORSMiddleware())
+
+	// start schedule poller (if configured)
+	middleware.StartSchedulePoller()
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	router.User(server, userController)

@@ -23,6 +23,7 @@ type Config struct {
 	GDriveFolderID    string
 	SheetsID          string
 	SheetsName        string
+	BaseURLSchedule   string
 }
 
 var AppConfig *Config
@@ -48,6 +49,7 @@ func LoadConfig() {
 		GDriveFolderID:    getEnv("GDRIVE_FOLDER_ID", ""),
 		SheetsID:          getEnv("SHEETS_ID", ""),
 		SheetsName:        getEnv("SHEETS_NAME", ""),
+		BaseURLSchedule:   getEnv("BASE_URL_SCHEDULE", ""),
 	}
 
 	log.Println("Configuration loaded successfully")

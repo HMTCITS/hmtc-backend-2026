@@ -36,6 +36,9 @@ func main() {
 	fmt.Printf("Seeding with mode: %s\n", options.Mode)
 	fmt.Printf("Continue on error: %t\n", *continueOnError)
 
+	// load configuration from .env or environment variables
+	config.LoadConfig()
+
 	db := config.ConnectDatabase()
 	defer config.CloseDatabase(db)
 
