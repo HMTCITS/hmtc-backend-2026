@@ -83,59 +83,15 @@ func toInt(s string) int {
 func (ec *evalCmi25Controller) Upload(ctx *gin.Context) {
 	var req dto.EvalCmi25Req
 
-	// Bind form-data langsung ke struct
+	// Bisa JSON, form-data, atau x-www-form-urlencoded
 	if err := ctx.ShouldBind(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "Form tidak valid: " + err.Error(),
+			"error": "Request tidak valid: " + err.Error(),
 		})
 		return
 	}
 
-	// Identitas
-	req.Nama = ctx.PostForm("nama")
-	req.Departemen = ctx.PostForm("departemen")
-
-	req.KejelasanKomunikasi = toInt(ctx.PostForm("kejelasan_komunikasi"))
-	req.Responsivitas = toInt(ctx.PostForm("responsivitas"))
-	req.KoordinasiKegiatan = toInt(ctx.PostForm("koordinasi_kegiatan"))
-	req.Profesionalisme = toInt(ctx.PostForm("profesionalisme"))
-	req.KeterbukaanFeedback = toInt(ctx.PostForm("keterbukaan_feedback"))
-
-	req.KualitasDukungan = toInt(ctx.PostForm("kualitas_dukung"))
-	req.KeterlibatanAktif = toInt(ctx.PostForm("keterlibatan_aktif"))
-	req.InovasiKreativitas = toInt(ctx.PostForm("inovasi_kreativitas"))
-	req.PemahamanTugas = toInt(ctx.PostForm("pemahaman_tugas"))
-	req.KepatuhanDeadline = toInt(ctx.PostForm("kepatuhan_deadline"))
-
-	// Creative Design
-	req.CdKonsistensiVisual = toInt(ctx.PostForm("cd_konsistensi_visual"))
-	req.CdKesesuaianBrief = toInt(ctx.PostForm("cd_kesesuaian_brief"))
-	req.CdEstetika = toInt(ctx.PostForm("cd_estetika"))
-	req.CdKecepatanRevisi = toInt(ctx.PostForm("cd_kecepatan_revisi"))
-
-	// Social Media
-	req.SmsStrategiKonten = toInt(ctx.PostForm("sms_strategi_konten"))
-	req.SmsAudien = toInt(ctx.PostForm("sms_audien"))
-	req.SmsCaption = toInt(ctx.PostForm("sms_caption"))
-	req.SmsAnalitik = toInt(ctx.PostForm("sms_analitik"))
-
-	// Media Production
-	req.MpKualitasProduksi = toInt(ctx.PostForm("mp_kualitas_produksi"))
-	req.MpKonsep = toInt(ctx.PostForm("mp_konsep"))
-	req.MpInovasi = toInt(ctx.PostForm("mp_inovasi"))
-	req.MpDokumentasi = toInt(ctx.PostForm("mp_dokumentasi"))
-
-	// IT Dev
-	req.ItStabilitas = toInt(ctx.PostForm("it_stabilitas"))
-	req.ItTeknis = toInt(ctx.PostForm("it_teknis"))
-	req.ItKeamanan = toInt(ctx.PostForm("it_keamanan"))
-	req.ItUx = toInt(ctx.PostForm("it_ux"))
-
-	// Essay
-	req.UmpanBalikUmum = ctx.PostForm("umpan_balik_umum")
-	req.SaranPerbaikan = ctx.PostForm("saran_perbaikan")
-	req.KomentarTambahan = ctx.PostForm("komentar_tambahan")
-
+	// Langsung simpan
 	if err := ec.evalService.UploadToSheet(req); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Gagal menyimpan evaluasi: " + err.Error(),
@@ -143,9 +99,6 @@ func (ec *evalCmi25Controller) Upload(ctx *gin.Context) {
 		return
 	}
 
-	// ===========================
-	// SUCCESS RESPONSE
-	// ===========================
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "Evaluasi berhasil disimpan!",
 		"data":    req,
