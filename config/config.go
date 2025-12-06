@@ -8,22 +8,24 @@ import (
 )
 
 type Config struct {
-	DBHost            string
-	DBUser            string
-	DBPassword        string
-	DBName            string
-	DBPort            string
-	JWTSecret         string
-	JWTRefreshSecret  string
-	NodeEnv           string
-	ServerPort        string
-	OauthClientID     string
-	OauthClientSecret string
-	RedirectURL       string
-	GDriveFolderID    string
-	SheetsID          string
-	SheetsName        string
-	BaseURLSchedule   string
+	DBHost              string
+	DBUser              string
+	DBPassword          string
+	DBName              string
+	DBPort              string
+	JWTSecret           string
+	JWTRefreshSecret    string
+	NodeEnv             string
+	ServerPort          string
+	OauthClientID       string
+	OauthClientSecret   string
+	RedirectURL         string
+	GDriveFolderID      string
+	SheetsID            string
+	SheetsName          string
+	BaseURLSchedule     string
+	SheetsIDEvalCmi25   string
+	SheetsNameEvalCmi25 string
 }
 
 var AppConfig *Config
@@ -34,22 +36,24 @@ func LoadConfig() {
 	}
 
 	AppConfig = &Config{
-		DBHost:            getEnv("DB_HOST", ""),
-		DBUser:            getEnv("DB_USER", ""),
-		DBPassword:        getEnv("DB_PASS", ""),
-		DBName:            getEnv("DB_NAME", ""),
-		DBPort:            getEnv("DB_PORT", ""),
-		JWTSecret:         getEnv("JWT_SECRET", ""),
-		JWTRefreshSecret:  getEnv("JWT_REFRESH_SECRET", ""),
-		NodeEnv:           getEnv("NODE_ENV", ""),
-		ServerPort:        getEnv("SERVER_PORT", ""),
-		OauthClientID:     getEnv("OAUTH_CLIENT_ID", ""),
-		OauthClientSecret: getEnv("OAUTH_CLIENT_SECRET", ""),
-		RedirectURL:       getEnv("REDIRECT_URL", ""),
-		GDriveFolderID:    getEnv("GDRIVE_FOLDER_ID", ""),
-		SheetsID:          getEnv("SHEETS_ID", ""),
-		SheetsName:        getEnv("SHEETS_NAME", ""),
-		BaseURLSchedule:   getEnv("BASE_URL_SCHEDULE", ""),
+		DBHost:              getEnv("DB_HOST", ""),
+		DBUser:              getEnv("DB_USER", ""),
+		DBPassword:          getEnv("DB_PASS", ""),
+		DBName:              getEnv("DB_NAME", ""),
+		DBPort:              getEnv("DB_PORT", ""),
+		JWTSecret:           getEnv("JWT_SECRET", ""),
+		JWTRefreshSecret:    getEnv("JWT_REFRESH_SECRET", ""),
+		NodeEnv:             getEnv("NODE_ENV", ""),
+		ServerPort:          getEnv("SERVER_PORT", ""),
+		OauthClientID:       getEnv("OAUTH_CLIENT_ID", ""),
+		OauthClientSecret:   getEnv("OAUTH_CLIENT_SECRET", ""),
+		RedirectURL:         getEnv("REDIRECT_URL", ""),
+		GDriveFolderID:      getEnv("GDRIVE_FOLDER_ID", ""),
+		SheetsID:            getEnv("SHEETS_ID", ""),
+		SheetsName:          getEnv("SHEETS_NAME", ""),
+		BaseURLSchedule:     getEnv("BASE_URL_SCHEDULE", ""),
+		SheetsIDEvalCmi25:   getEnv("SHEETS_ID_EVAL_CMI25", ""),
+		SheetsNameEvalCmi25: getEnv("SHEETS_NAME_EVAL_CMI25", ""),
 	}
 
 	log.Println("Configuration loaded successfully")

@@ -21,6 +21,162 @@ info:
   title: HMTC API Documentation
   version: "1.0"
 paths:
+  /evaluasi-cmi/submit:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Menerima data evaluasi dalam bentuk form-data dan menyimpannya
+        ke Google Sheets.
+      parameters:
+      - description: Nama penilai
+        in: formData
+        name: nama
+        required: true
+        type: string
+      - description: Departemen penilai
+        in: formData
+        name: departemen
+        required: true
+        type: string
+      - description: Kejelasan komunikasi
+        in: formData
+        name: kejelasan_komunikasi
+        type: integer
+      - description: Responsivitas
+        in: formData
+        name: responsivitas
+        type: integer
+      - description: Koordinasi kegiatan
+        in: formData
+        name: koordinasi_kegiatan
+        type: integer
+      - description: Profesionalisme
+        in: formData
+        name: profesionalisme
+        type: integer
+      - description: Keterbukaan terhadap feedback
+        in: formData
+        name: keterbukaan_feedback
+        type: integer
+      - description: Kualitas dukungan
+        in: formData
+        name: kualitas_dukung
+        type: integer
+      - description: Keterlibatan aktif
+        in: formData
+        name: keterlibatan_aktif
+        type: integer
+      - description: Inovasi & kreativitas
+        in: formData
+        name: inovasi_kreativitas
+        type: integer
+      - description: Pemahaman tugas
+        in: formData
+        name: pemahaman_tugas
+        type: integer
+      - description: Kepatuhan deadline
+        in: formData
+        name: kepatuhan_deadline
+        type: integer
+      - description: Consistensi visual (CD)
+        in: formData
+        name: cd_konsistensi_visual
+        type: integer
+      - description: Kesesuaian brief (CD)
+        in: formData
+        name: cd_kesesuaian_brief
+        type: integer
+      - description: Estetika (CD)
+        in: formData
+        name: cd_estetika
+        type: integer
+      - description: Kecepatan revisi (CD)
+        in: formData
+        name: cd_kecepatan_revisi
+        type: integer
+      - description: Strategi konten (SM)
+        in: formData
+        name: sms_strategi_konten
+        type: integer
+      - description: Pemahaman audiens (SM)
+        in: formData
+        name: sms_audien
+        type: integer
+      - description: Copywriting/caption (SM)
+        in: formData
+        name: sms_caption
+        type: integer
+      - description: Analitik konten (SM)
+        in: formData
+        name: sms_analitik
+        type: integer
+      - description: Kualitas produksi (MP)
+        in: formData
+        name: mp_kualitas_produksi
+        type: integer
+      - description: Konsep (MP)
+        in: formData
+        name: mp_konsep
+        type: integer
+      - description: Inovasi (MP)
+        in: formData
+        name: mp_inovasi
+        type: integer
+      - description: Dokumentasi (MP)
+        in: formData
+        name: mp_dokumentasi
+        type: integer
+      - description: Stabilitas sistem (IT)
+        in: formData
+        name: it_stabilitas
+        type: integer
+      - description: Kemampuan teknis (IT)
+        in: formData
+        name: it_teknis
+        type: integer
+      - description: Keamanan sistem (IT)
+        in: formData
+        name: it_keamanan
+        type: integer
+      - description: User experience (IT)
+        in: formData
+        name: it_ux
+        type: integer
+      - description: Feedback umum
+        in: formData
+        name: umpan_balik_umum
+        type: string
+      - description: Saran perbaikan
+        in: formData
+        name: saran_perbaikan
+        type: string
+      - description: Komentar tambahan
+        in: formData
+        name: komentar_tambahan
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Evaluasi berhasil disimpan
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Form tidak valid
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Gagal menyimpan ke Google Sheets
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Mengunggah hasil evaluasi CMI 2025
+      tags:
+      - Evaluasi CMI 2025
   /magang/get-token:
     get:
       description: Mendapatkan URL untuk login Google OAuth dan mendapatkan refresh

@@ -15,6 +15,238 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/evaluasi-cmi/submit": {
+            "post": {
+                "description": "Menerima data evaluasi dalam bentuk form-data dan menyimpannya ke Google Sheets.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Evaluasi CMI 2025"
+                ],
+                "summary": "Mengunggah hasil evaluasi CMI 2025",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Nama penilai",
+                        "name": "nama",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Departemen penilai",
+                        "name": "departemen",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Kejelasan komunikasi",
+                        "name": "kejelasan_komunikasi",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Responsivitas",
+                        "name": "responsivitas",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Koordinasi kegiatan",
+                        "name": "koordinasi_kegiatan",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Profesionalisme",
+                        "name": "profesionalisme",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Keterbukaan terhadap feedback",
+                        "name": "keterbukaan_feedback",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Kualitas dukungan",
+                        "name": "kualitas_dukung",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Keterlibatan aktif",
+                        "name": "keterlibatan_aktif",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Inovasi \u0026 kreativitas",
+                        "name": "inovasi_kreativitas",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Pemahaman tugas",
+                        "name": "pemahaman_tugas",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Kepatuhan deadline",
+                        "name": "kepatuhan_deadline",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Consistensi visual (CD)",
+                        "name": "cd_konsistensi_visual",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Kesesuaian brief (CD)",
+                        "name": "cd_kesesuaian_brief",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Estetika (CD)",
+                        "name": "cd_estetika",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Kecepatan revisi (CD)",
+                        "name": "cd_kecepatan_revisi",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Strategi konten (SM)",
+                        "name": "sms_strategi_konten",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Pemahaman audiens (SM)",
+                        "name": "sms_audien",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Copywriting/caption (SM)",
+                        "name": "sms_caption",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Analitik konten (SM)",
+                        "name": "sms_analitik",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Kualitas produksi (MP)",
+                        "name": "mp_kualitas_produksi",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Konsep (MP)",
+                        "name": "mp_konsep",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Inovasi (MP)",
+                        "name": "mp_inovasi",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Dokumentasi (MP)",
+                        "name": "mp_dokumentasi",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Stabilitas sistem (IT)",
+                        "name": "it_stabilitas",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Kemampuan teknis (IT)",
+                        "name": "it_teknis",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Keamanan sistem (IT)",
+                        "name": "it_keamanan",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User experience (IT)",
+                        "name": "it_ux",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Feedback umum",
+                        "name": "umpan_balik_umum",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Saran perbaikan",
+                        "name": "saran_perbaikan",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Komentar tambahan",
+                        "name": "komentar_tambahan",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Evaluasi berhasil disimpan",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Form tidak valid",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Gagal menyimpan ke Google Sheets",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/magang/get-token": {
             "get": {
                 "description": "Mendapatkan URL untuk login Google OAuth dan mendapatkan refresh token",
