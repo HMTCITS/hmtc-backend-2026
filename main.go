@@ -45,11 +45,13 @@ func main() {
 		driveService     service.DriveService     = service.NewDriveService(oauthTokenRepo)
 		sheetsService    service.SheetsService    = service.NewSheetsService(oauthTokenRepo)
 		magangService    service.MagangService    = service.NewMagangService(driveService, sheetsService)
+		evalCmi25Service service.EvalCmi25Service = service.NewEvalCmi25Service(sheetsService)
 
 		userController      controller.UserController      = controller.NewUserController(userService)
 		healthController    controller.HealthController    = controller.NewHealthController()
 		shortLinkController controller.ShortLinkController = controller.NewShortLinkController(shortLinkService)
 		magangController    controller.MagangController    = controller.NewMagangController(magangService, oauthTokenRepo)
+		evalCmi25Controller controller.EvalCmi25Controller = controller.NewEvalCmi25Controller(evalCmi25Service)
 	)
 
 	server := gin.Default()
@@ -63,6 +65,7 @@ func main() {
 	router.ShortLink(server, shortLinkController)
 	router.Magang(server, magangController)
 	router.Health(server, healthController)
+	router.EvalCmi25(server, evalCmi25Controller)
 
 	if err := migration.Migrate(db); err != nil {
 		panic("Failed to migrate database")
