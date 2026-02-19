@@ -7,9 +7,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func ConnectDatabase() *gorm.DB {
-	if AppConfig == nil {
-		panic("AppConfig belum di-load.")
+func ConnectDatabase(appConfig *Config) *gorm.DB {
+	if appConfig == nil {
+		panic("AppConfig not loaded.")
 	}
 
 	dsn := fmt.Sprintf(

@@ -15,7 +15,6 @@ import (
 
 	"github.com/HMTCITS/hmtc-backend-2025/config"
 	"github.com/HMTCITS/hmtc-backend-2025/middleware"
-	"github.com/HMTCITS/hmtc-backend-2025/migration"
 	"github.com/HMTCITS/hmtc-backend-2025/router"
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
@@ -29,9 +28,9 @@ import (
 func main() {
 	fmt.Println("Backend HMTC 2025")
 
-	config.LoadConfig()
+	appConfig := config.LoadConfig()
 
-	var db *gorm.DB = config.ConnectDatabase()
+	var db *gorm.DB = config.ConnectDatabase(appConfig)
 
 	defer config.CloseDatabase(db)
 
@@ -60,10 +59,6 @@ func main() {
 	router.ShortLink(server, shortLinkController)
 	router.Magang(server, magangController)
 	router.Health(server, healthController)
-
-	if err := migration.Migrate(db); err != nil {
-		panic("Failed to migrate database")
-	}
 
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {

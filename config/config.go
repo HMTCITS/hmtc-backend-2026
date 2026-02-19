@@ -27,7 +27,7 @@ type Config struct {
 
 var AppConfig *Config
 
-func LoadConfig() {
+func LoadConfig() *Config {
 	if err := godotenv.Load(); err != nil {
 		log.Println("Warning: .env file not found, using system env")
 	}
@@ -51,6 +51,7 @@ func LoadConfig() {
 	}
 
 	log.Println("Configuration loaded successfully")
+	return AppConfig
 }
 
 func getEnv(key, fallback string) string {

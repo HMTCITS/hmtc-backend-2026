@@ -36,7 +36,9 @@ func main() {
 	fmt.Printf("Seeding with mode: %s\n", options.Mode)
 	fmt.Printf("Continue on error: %t\n", *continueOnError)
 
-	db := config.ConnectDatabase()
+	appConfig := config.LoadConfig()
+
+	db := config.ConnectDatabase(appConfig)
 	defer config.CloseDatabase(db)
 
 	if err := seeding.RunAllSeeders(db, options, seeding.GetSeeders()...); err != nil {

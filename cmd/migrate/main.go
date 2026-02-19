@@ -12,7 +12,9 @@ import (
 func main() {
 	fmt.Println("Running database migration...")
 
-	db := config.ConnectDatabase()
+	appConfig := config.LoadConfig()
+
+	db := config.ConnectDatabase(appConfig)
 	defer config.CloseDatabase(db)
 
 	if err := migration.Migrate(db); err != nil {
