@@ -44,21 +44,27 @@ func main() {
 		driveService     service.DriveService     = service.NewDriveService(oauthTokenRepo)
 		sheetsService    service.SheetsService    = service.NewSheetsService(oauthTokenRepo)
 		magangService    service.MagangService    = service.NewMagangService(driveService, sheetsService)
+		evalCmi25Service service.EvalCmi25Service = service.NewEvalCmi25Service(sheetsService)
 
 		userController      controller.UserController      = controller.NewUserController(userService)
 		healthController    controller.HealthController    = controller.NewHealthController()
 		shortLinkController controller.ShortLinkController = controller.NewShortLinkController(shortLinkService)
 		magangController    controller.MagangController    = controller.NewMagangController(magangService, oauthTokenRepo)
+		evalCmi25Controller controller.EvalCmi25Controller = controller.NewEvalCmi25Controller(evalCmi25Service)
 	)
 
 	server := gin.Default()
 	server.Use(middleware.CORSMiddleware())
+
+	// start schedule poller (if configured)
+	middleware.StartSchedulePoller()
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	router.User(server, userController)
 	router.ShortLink(server, shortLinkController)
 	router.Magang(server, magangController)
 	router.Health(server, healthController)
+	router.EvalCmi25(server, evalCmi25Controller)
 
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {

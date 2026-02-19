@@ -1,0 +1,121 @@
+{
+  "info": {
+    "name": "HMTC ITS - Magang Upload",
+    "_postman_id": "b6f4d7d4-8c9a-4c2b-9f6a-2d3b7e5a1c9f",
+    "description": "Postman collection untuk endpoint POST https://api.hmtc-its.com/api/magang/upload menggunakan form-data (multipart/form-data).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Upload Magang",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "nama",
+              "value": "Muhammad Syarif Hidayatullah",
+              "type": "text"
+            },
+            {
+              "key": "nrp",
+              "value": "5025221113",
+              "type": "text"
+            },
+            {
+              "key": "kelompok_kp",
+              "value": "12",
+              "type": "text"
+            },
+            {
+              "key": "pertanyaan_umum[q1]",
+              "value": "asda",
+              "type": "text"
+            },
+            {
+              "key": "pertanyaan_umum[q2]",
+              "value": "sdasdas",
+              "type": "text"
+            },
+            {
+              "key": "pertanyaan_umum[q3]",
+              "value": "dasda",
+              "type": "text"
+            },
+            {
+              "key": "divisi_dipilih",
+              "value": "ed",
+              "type": "text"
+            },
+            {
+              "key": "pertanyaan_divisi[ed][q1]",
+              "value": "asdasda",
+              "type": "text"
+            },
+            {
+              "key": "pertanyaan_divisi[ed][q2]",
+              "value": "dadasdsadasd",
+              "type": "text"
+            },
+            {
+              "key": "pertanyaan_divisi[ed][q3]",
+              "value": "asdasda",
+              "type": "text"
+            },
+            {
+              "key": "pertanyaan_divisi[ed][q4]",
+              "value": "dasdasd",
+              "type": "text"
+            },
+            {
+              "key": "pertanyaan_divisi[ed][q5]",
+              "value": "asdad",
+              "type": "text"
+            },
+            {
+              "key": "file_zip",
+              "type": "file",
+              "src": "./file.zip"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://api.hmtc-its.com/api/magang/upload",
+          "protocol": "https",
+          "host": [
+            "api",
+            "hmtc-its",
+            "com"
+          ],
+          "path": [
+            "api",
+            "magang",
+            "upload"
+          ]
+        },
+        "description": "Request untuk mengunggah data magang. Gunakan mode form-data dan sertakan file ZIP pada field file_zip."
+      },
+      "response": [
+        {
+          "name": "Example Success",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata"
+            },
+            "url": {
+              "raw": "https://api.hmtc-its.com/api/magang/upload"
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"success\": true,\n  \"message\": \"Upload berhasil\",\n  \"data\": {\n    \"nama\": \"Muhammad Syarif Hidayatullah\",\n    \"nrp\": \"5025221113\",\n    \"kelompok_kp\": \"12\",\n    \"divisi_dipilih\": \"ed\"\n  }\n}"
+        }
+      ]
+    }
+  ]
+}
