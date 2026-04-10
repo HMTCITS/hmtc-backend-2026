@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: ghcr.io/hmtc/hmtc-backend-2026-backend:latest
     container_name: backend-hmtc
     ports:
       - "8080:8080"
@@ -20,7 +21,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-    - .env
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
