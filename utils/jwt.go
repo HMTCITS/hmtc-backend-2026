@@ -13,7 +13,7 @@ func GenerateToken(userId uuid.UUID, role string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub":  userId,
 		"role": role,
-		"exp":  jwt.NewNumericDate(time.Now().Add(time.Minute * 120)),
+		"exp":  jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
 	})
 
 	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
