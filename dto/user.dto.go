@@ -21,8 +21,18 @@ type UserGetByNRPRes struct {
 	DepartementName *string `json:"departement_name,omitempty"`
 }
 
+type UserGetByEmailReq struct {
+	Email string `json:"email" binding:"required, email"`
+}
+
+type UserGetByEmailRes struct {
+	Email           string  `json:"email"`
+	DepartementName *string `json:"departement_name,omitempty"`
+}
+
 type UserLoginReq struct {
-	NRP string `json:"nrp" form:"nrp" binding:"required"`
+	Email    string `json:"email" form:"email" binding:"required, email"`
+	Password string `json:"password" form:"password" binding:"required"`
 }
 
 type UserLoginRes struct {
@@ -40,7 +50,7 @@ type UserRefreshRes struct {
 }
 
 type UserMeRes struct {
-	NRP             string `json:"nrp"`
+	Email           string `json:"email"`
 	DepartementName string `json:"departement_name,omitempty"`
 }
 

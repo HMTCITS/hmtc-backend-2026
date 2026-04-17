@@ -44,8 +44,17 @@ func RequireAuth(ctx *gin.Context) {
 			return
 		}
 
+		var deptIdPtr *string
+		if deptIdClaim, ok := claims["department_id"].(string); ok && deptIdClaim != "" {
+			deptIdPtr = &deptIdClaim
+		}
+
 		ctx.Set("user", userId)
 		ctx.Set("role", userRole)
+
+		if deptIdPtr != nil {
+			ctx.Set("department_id", *deptIdPtr)
+		}
 		ctx.Next()
 	} else {
 		tryRefreshToken(ctx)
@@ -88,7 +97,14 @@ func tryRefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	newAccessToken, err := utils.GenerateToken(userUUID, claims["role"].(string))
+	var deptIdPtr *uuid.UUID
+	if deptIdClaim, ok := claims["department_id"].(string); ok && deptIdClaim != "" {
+		if parsedUUID, err := uuid.Parse(deptIdClaim); err == nil {
+			deptIdPtr = &parsedUUID
+		}
+	}
+
+	newAccessToken, err := utils.GenerateToken(userUUID, claims["role"].(string), deptIdPtr)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, utils.ResponseFailed(dto.MSG_ACCESS_TOKEN_CREATE_FAILED, "Failed to create access token"))
 		return
@@ -96,6 +112,11 @@ func tryRefreshToken(ctx *gin.Context) {
 
 	ctx.SetCookie("accessToken", newAccessToken, int(time.Minute*120/time.Second), "/", "", false, true)
 	ctx.Set("user", userUUID.String())
+
+	if deptIdPtr != nil {
+		ctx.Set("department_id", *deptIdPtr)
+	}
+
 	ctx.Next()
 }
 
