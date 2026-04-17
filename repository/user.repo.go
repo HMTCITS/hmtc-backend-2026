@@ -6,9 +6,9 @@ import (
 )
 
 type UserRepository interface {
-	Register(user model.User) (model.User, error)
-	IsNRPExist(nrp string) (bool, error)
-	FindUserByNRP(nrp string) (model.User, error)
+	// Register(user model.User) (model.User, error)
+	IsEmailExist(email string) (bool, error)
+	FindUserByEmail(email string) (model.User, error)
 	FindUserById(id string) (model.User, error)
 	FindDepartementByName(name string) (*model.Departement, error)
 }
@@ -23,13 +23,13 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 	}
 }
 
-func (ur *userRepository) Register(user model.User) (model.User, error) {
-	if err := ur.DB.Create(&user).Error; err != nil {
-		return model.User{}, err
-	}
+// func (ur *userRepository) Register(user model.User) (model.User, error) {
+// 	if err := ur.DB.Create(&user).Error; err != nil {
+// 		return model.User{}, err
+// 	}
 
-	return user, nil
-}
+// 	return user, nil
+// }
 
 func (r *userRepository) FindUserById(id string) (model.User, error) {
 	var user model.User
@@ -43,9 +43,9 @@ func (r *userRepository) FindUserById(id string) (model.User, error) {
 	return user, nil
 }
 
-func (r *userRepository) FindUserByNRP(nrp string) (model.User, error) {
+func (r *userRepository) FindUserByEmail(email string) (model.User, error) {
 	var user model.User
-	if err := r.DB.Preload("Departement").Where("nrp = ?", nrp).Take(&user).Error; err != nil {
+	if err := r.DB.Preload("Departement").Where("email = ?", email).Take(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return model.User{}, err
 		}
@@ -55,9 +55,9 @@ func (r *userRepository) FindUserByNRP(nrp string) (model.User, error) {
 	return user, nil
 }
 
-func (r *userRepository) IsNRPExist(nrp string) (bool, error) {
+func (r *userRepository) IsEmailExist(email string) (bool, error) {
 	var user model.User
-	if err := r.DB.Where("nrp = ?", nrp).Take(&user).Error; err != nil {
+	if err := r.DB.Where("email = ?", email).Take(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return false, nil
 		}

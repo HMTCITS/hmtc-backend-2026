@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/HMTCITS/hmtc-backend-2025/model"
+	"github.com/HMTCITS/hmtc-backend-2025/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -57,7 +58,8 @@ func (s *UserSeeder) Seed(db *gorm.DB, options SeedOptions) error {
 		departmentMap[dept.Name] = dept.Id
 	}
 
-	usersToSeed := []struct {
+	/*
+	usersToSeedNRP := []struct {
 		NRP            string
 		DepartmentName string
 	}{
@@ -637,36 +639,62 @@ func (s *UserSeeder) Seed(db *gorm.DB, options SeedOptions) error {
 			DepartmentName: "Student Welfare, Research, and Technology",
 		},
 	}
+	*/
+
+	usersToSeed := []struct {
+		Email          string
+		DepartmentName string
+		Password       string
+	}{
+		{Email: "cmi@hmtc-its.com", DepartmentName: "Creative Media Information", Password: "password_hardcoded"},
+		{Email: "humas@hmtc-its.com", DepartmentName: "External Affairs", Password: "password_hardcoded"},
+		{Email: "internal@hmtc-its.com", DepartmentName: "Internal Affairs", Password: "password_hardcoded"},
+		{Email: "sekretariat@hmtc-its.com", DepartmentName: "Board Of Directors", Password: "password_hardcoded"},
+		{Email: "ed@hmtc-its.com", DepartmentName: "Entrepreneurship Development Departement", Password: "password_hardcoded"},
+		{Email: "srd@hmtc-its.com", DepartmentName: "Student Resources Development", Password: "password_hardcoded"},
+		{Email: "ssd@hmtc-its.com", DepartmentName: "Student Social Development", Password: "password_hardcoded"},
+		{Email: "sti@hmtc-its.com", DepartmentName: "Student Talenta and Interests", Password: "password_hardcoded"},
+		{Email: "ristek@hmtc-its.com", DepartmentName: "Student Welfare, Research, and Technology", Password: "password_hardcoded"},
+	}
 	var seeded, skipped, failed int
 
 	for _, userData := range usersToSeed {
 		deptId, ok := departmentMap[userData.DepartmentName]
 		if !ok {
 			fmt.Printf("Warning: Department '%s' not found, skipping user '%s'\n",
-				userData.DepartmentName, userData.NRP)
+				userData.DepartmentName, userData.Email)
 			skipped++
 			continue
 		}
 
 		var existingUser model.User
-		result := db.Where("nrp = ?", userData.NRP).First(&existingUser)
+		result := db.Where("email = ?", userData.Email).First(&existingUser)
 
 		if result.Error == nil {
-			fmt.Printf("User already exists with NRP '%s' (skipping)\n", userData.NRP)
+			fmt.Printf("User already exists with Email '%s' (skipping)\n", userData.Email)
 			skipped++
 			continue
 		}
 
 		if result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			fmt.Printf("Error checking for existing user with NRP '%s': %v\n", userData.NRP, result.Error)
+			fmt.Printf("Error checking for existing user with Email '%s': %v\n", userData.Email, result.Error)
+			failed++
+			continue
+		}
+
+		hashedPassword, err := utils.HashPassword(userData.Password)
+		if err != nil {
+			fmt.Printf("Failed to hash password for user '%s': %v\n", userData.Email, err)
 			failed++
 			continue
 		}
 
 		user := model.User{
 			Id:            uuid.New(),
-			NRP:           userData.NRP,
+			Email:         userData.Email,
+			PasswordHash:  hashedPassword,
 			DepartementId: &deptId,
+			Role:          model.Admin,
 			Timestamp: model.Timestamp{
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
@@ -675,10 +703,10 @@ func (s *UserSeeder) Seed(db *gorm.DB, options SeedOptions) error {
 
 		createResult := db.Create(&user)
 		if createResult.Error != nil {
-			fmt.Printf("Failed to create user '%s': %v\n", user.NRP, createResult.Error)
+			fmt.Printf("Failed to create user '%s': %v\n", user.Email, createResult.Error)
 			failed++
 		} else {
-			fmt.Printf("Created new user: %s\n", user.NRP)
+			fmt.Printf("Created new user: %s\n", user.Email)
 			seeded++
 		}
 	}
