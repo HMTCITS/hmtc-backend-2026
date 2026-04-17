@@ -179,15 +179,14 @@ func (uc *userController) RefreshToken(ctx *gin.Context) {
 
 	userUUID, _ := uuid.Parse(userIDStr)
 
-	var deptIdPtr *uuid.UUID
-	if deptIdClaim, ok := claims["department_id"].(string); ok && deptIdClaim != "" {
-		if parsedUUID, err := uuid.Parse(deptIdClaim); err == nil {
-			deptIdPtr = &parsedUUID
-		}
+	userDepartement, ok := claims["departement"].(string)
+	if !ok {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		return
 	}
 
 	// generate token baru
-	newAccessToken, _ := utils.GenerateToken(userUUID, claims["role"].(string), deptIdPtr)
+	newAccessToken, _ := utils.GenerateToken(userUUID, claims["role"].(string), userDepartement)
 
 	ctx.SetCookie("accessToken", newAccessToken, 3600, "/", "", false, true)
 	ctx.JSON(http.StatusOK, gin.H{"message": "Access token refreshed"})

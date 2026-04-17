@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/HMTCITS/hmtc-backend-2025/dto"
@@ -44,17 +45,15 @@ func RequireAuth(ctx *gin.Context) {
 			return
 		}
 
-		var deptIdPtr *string
-		if deptIdClaim, ok := claims["department_id"].(string); ok && deptIdClaim != "" {
-			deptIdPtr = &deptIdClaim
+		userDepartement, ok := claims["departement"].(string)
+		if !ok {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, utils.ResponseFailed(dto.MSG_AUTH_FAILED, "Invalid user Departement in token"))
+			return
 		}
 
 		ctx.Set("user", userId)
 		ctx.Set("role", userRole)
-
-		if deptIdPtr != nil {
-			ctx.Set("department_id", *deptIdPtr)
-		}
+		ctx.Set("departement", userDepartement)
 		ctx.Next()
 	} else {
 		tryRefreshToken(ctx)
@@ -97,14 +96,7 @@ func tryRefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	var deptIdPtr *uuid.UUID
-	if deptIdClaim, ok := claims["department_id"].(string); ok && deptIdClaim != "" {
-		if parsedUUID, err := uuid.Parse(deptIdClaim); err == nil {
-			deptIdPtr = &parsedUUID
-		}
-	}
-
-	newAccessToken, err := utils.GenerateToken(userUUID, claims["role"].(string), deptIdPtr)
+	newAccessToken, err := utils.GenerateToken(userUUID, claims["role"].(string), claims["departement"].(string))
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, utils.ResponseFailed(dto.MSG_ACCESS_TOKEN_CREATE_FAILED, "Failed to create access token"))
 		return
@@ -112,10 +104,6 @@ func tryRefreshToken(ctx *gin.Context) {
 
 	ctx.SetCookie("accessToken", newAccessToken, int(time.Minute*120/time.Second), "/", "", false, true)
 	ctx.Set("user", userUUID.String())
-
-	if deptIdPtr != nil {
-		ctx.Set("department_id", *deptIdPtr)
-	}
 
 	ctx.Next()
 }
@@ -132,5 +120,19 @@ func OnlyAdmin(ctx *gin.Context) {
 		return
 	}
 
+	ctx.Next()
+}
+
+func OnlyCMI(ctx *gin.Context) {
+	userDepartment, exists := ctx.Get("departement")
+	if !exists {
+		ctx.AbortWithStatusJSON(http.StatusForbidden, utils.ResponseFailed(dto.MSG_AUTH_FAILED, "No departement"))
+		return
+	}
+	deprt := strings.ToLower(userDepartment.(string))
+	if deprt != "cmi" {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, utils.ResponseFailed(dto.MSG_USER_FORBIDDEN, "Departement has no access"))
+		return
+	}
 	ctx.Next()
 }

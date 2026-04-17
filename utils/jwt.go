@@ -9,15 +9,12 @@ import (
 	"github.com/google/uuid"
 )
 
-func GenerateToken(userId uuid.UUID, role string, deptId *uuid.UUID) (string, error) {
+func GenerateToken(userId uuid.UUID, role, department string) (string, error) {
 	claims := jwt.MapClaims{
-		"sub":  userId,
-		"role": role,
-		"exp":  jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
-	}
-
-	if deptId != nil {
-		claims["department_id"] = deptId.String()
+		"sub":        userId,
+		"role":       role,
+		"department": department,
+		"exp":        jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -31,15 +28,12 @@ func GenerateToken(userId uuid.UUID, role string, deptId *uuid.UUID) (string, er
 
 }
 
-func GenerateRefreshToken(userId uuid.UUID, role string, deptId *uuid.UUID) (string, error) {
+func GenerateRefreshToken(userId uuid.UUID, role, departement string) (string, error) {
 	claims := jwt.MapClaims{
-		"sub":  userId,
-		"role": role,
-		"exp":  jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
-	}
-
-	if deptId != nil {
-		claims["department_id"] = deptId.String()
+		"sub":         userId,
+		"role":        role,
+		"departement": departement,
+		"exp":         jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
