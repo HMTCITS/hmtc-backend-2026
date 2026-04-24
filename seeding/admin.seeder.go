@@ -44,31 +44,15 @@ func (s *AdminSeeder) Seed(db *gorm.DB, options SeedOptions) error {
 		fmt.Println("Appending admin...")
 	}
 
-	var departements []model.Departement
-	if err := db.Find(&departements).Error; err != nil {
-		return fmt.Errorf("failed to fetch departments: %w", err)
-	}
-
-	if len(departements) == 0 {
-		return fmt.Errorf("no departments found, make sure to run DepartementSeeder first")
-	}
-
-	departmentMap := make(map[string]uuid.UUID)
-	for _, dept := range departements {
-		departmentMap[dept.Name] = dept.Id
-	}
-
 	adminToSeeder := []struct {
 		Email          string
 		Password       string
-		NRP            string
 		DepartmentName string
 		Role           string
 	}{
 		{
 			Email:          "admin@hmtc-its.com",
 			Password:       "password_admin",
-			NRP:            "5053231014",
 			DepartmentName: "Creative Media Information",
 			Role:           "admin",
 		},
@@ -76,14 +60,6 @@ func (s *AdminSeeder) Seed(db *gorm.DB, options SeedOptions) error {
 	var seeded, skipped, failed int
 
 	for _, adminData := range adminToSeeder {
-		deptId, ok := departmentMap[adminData.DepartmentName]
-		if !ok {
-			fmt.Printf("Warning: Department '%s' not found, skipping user '%s'\n",
-				adminData.DepartmentName, adminData.Email)
-			skipped++
-			continue
-		}
-
 		var existingUser model.User
 		result := db.Where("email = ?", adminData.Email).First(&existingUser)
 
@@ -106,15 +82,12 @@ func (s *AdminSeeder) Seed(db *gorm.DB, options SeedOptions) error {
 			continue
 		}
 
-		nrp := adminData.NRP
-
 		user := model.User{
-			Id:            uuid.New(),
-			NRP:           &nrp,
-			Email:         adminData.Email,
-			PasswordHash:  hashedPassword,
-			Role:          model.UserRole(adminData.Role),
-			DepartementId: &deptId,
+			Id:             uuid.New(),
+			Email:          adminData.Email,
+			PasswordHash:   hashedPassword,
+			Role:           model.UserRole(adminData.Role),
+			DepartmentName: adminData.DepartmentName,
 			Timestamp: model.Timestamp{
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
