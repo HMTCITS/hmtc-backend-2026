@@ -44,8 +44,15 @@ func RequireAuth(ctx *gin.Context) {
 			return
 		}
 
+		userDepartment, ok := claims["departement"].(string)
+		if !ok {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, utils.ResponseFailed(dto.MSG_AUTH_FAILED, "Invalid user Role in token"))
+			return
+		}
+
 		ctx.Set("user", userId)
 		ctx.Set("role", userRole)
+		ctx.Set("departement", userDepartment)
 		ctx.Next()
 	} else {
 		tryRefreshToken(ctx)
@@ -88,7 +95,7 @@ func tryRefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	newAccessToken, err := utils.GenerateToken(userUUID, claims["role"].(string))
+	newAccessToken, err := utils.GenerateToken(userUUID, claims["role"].(string), claims["departement"].(string))
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, utils.ResponseFailed(dto.MSG_ACCESS_TOKEN_CREATE_FAILED, "Failed to create access token"))
 		return
@@ -112,4 +119,25 @@ func OnlyAdmin(ctx *gin.Context) {
 	}
 
 	ctx.Next()
+}
+
+func OnlyCMI(ctx *gin.Context) {
+	if role, _ := ctx.Get("role"); role == "admin" {
+		ctx.Next()
+		return
+	}
+
+	deptName, exist := ctx.Get("departement")
+	if !exist {
+		ctx.AbortWithStatusJSON(http.StatusForbidden, utils.ResponseFailed(dto.MSG_AUTH_FAILED, "Unauthorize"))
+		return
+	}
+
+	if deptName != "cmi" {
+		ctx.AbortWithStatusJSON(http.StatusForbidden, utils.ResponseFailed(dto.MSG_USER_FORBIDDEN, "Forbidden"))
+		return
+	}
+
+	ctx.Next()
+
 }

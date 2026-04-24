@@ -9,11 +9,12 @@ import (
 	"github.com/google/uuid"
 )
 
-func GenerateToken(userId uuid.UUID, role string) (string, error) {
+func GenerateToken(userId uuid.UUID, role string, departement string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub":  userId,
-		"role": role,
-		"exp":  jwt.NewNumericDate(time.Now().Add(time.Minute * 120)),
+		"sub":         userId,
+		"role":        role,
+		"departement": departement,
+		"exp":         jwt.NewNumericDate(time.Now().Add(time.Minute * 120)),
 	})
 
 	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
@@ -25,11 +26,12 @@ func GenerateToken(userId uuid.UUID, role string) (string, error) {
 
 }
 
-func GenerateRefreshToken(userId uuid.UUID, role string) (string, error) {
+func GenerateRefreshToken(userId uuid.UUID, role string, departement string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub":  userId,
-		"role": role,
-		"exp":  jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 7)), // 7 hari
+		"sub":         userId,
+		"role":        role,
+		"departement": departement,
+		"exp":         jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 7)),
 	})
 
 	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_REFRESH_SECRET")))

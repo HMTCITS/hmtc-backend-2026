@@ -180,7 +180,7 @@ func (uc *userController) RefreshToken(ctx *gin.Context) {
 	userUUID, _ := uuid.Parse(userIDStr)
 
 	// generate token baru
-	newAccessToken, _ := utils.GenerateToken(userUUID, claims["role"].(string))
+	newAccessToken, _ := utils.GenerateToken(userUUID, claims["role"].(string), claims["departement"].(string))
 
 	ctx.SetCookie("accessToken", newAccessToken, 3600, "/", "", false, true)
 	ctx.JSON(http.StatusOK, gin.H{"message": "Access token refreshed"})

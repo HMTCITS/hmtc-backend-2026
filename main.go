@@ -38,6 +38,7 @@ func main() {
 		userRepo       repository.UserRepository       = repository.NewUserRepository(db)
 		shortLinkRepo  repository.ShortLinkRepository  = repository.NewShortLinkRepository(db)
 		oauthTokenRepo repository.OAuthTokenRepository = repository.NewOAuthTokenRepo(db)
+		galleryRepo    repository.GalleriesRepository  = repository.NewGalleriesRepository(db)
 
 		userService      service.UserService      = service.NewUserService(userRepo)
 		shortLinkService service.ShortLinkService = service.NewShortLinkService(shortLinkRepo)
@@ -45,18 +46,19 @@ func main() {
 		sheetsService    service.SheetsService    = service.NewSheetsService(oauthTokenRepo)
 		magangService    service.MagangService    = service.NewMagangService(driveService, sheetsService)
 		evalCmi25Service service.EvalCmi25Service = service.NewEvalCmi25Service(sheetsService)
+		galleryService   service.GalleryService   = service.NewGalleryService(galleryRepo)
 
 		userController      controller.UserController      = controller.NewUserController(userService)
 		healthController    controller.HealthController    = controller.NewHealthController()
 		shortLinkController controller.ShortLinkController = controller.NewShortLinkController(shortLinkService)
 		magangController    controller.MagangController    = controller.NewMagangController(magangService, oauthTokenRepo)
 		evalCmi25Controller controller.EvalCmi25Controller = controller.NewEvalCmi25Controller(evalCmi25Service)
+		galleryController   controller.GalleryController   = controller.NewGalleryController(galleryService, userService)
 	)
 
 	server := gin.Default()
 	server.Use(middleware.CORSMiddleware())
 
-	// start schedule poller (if configured)
 	middleware.StartSchedulePoller()
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
@@ -65,6 +67,7 @@ func main() {
 	router.Magang(server, magangController)
 	router.Health(server, healthController)
 	router.EvalCmi25(server, evalCmi25Controller)
+	router.Gallery(server, galleryController)
 
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
