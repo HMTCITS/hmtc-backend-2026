@@ -30,10 +30,10 @@ func GenerateToken(userId uuid.UUID, role, department string) (string, error) {
 
 func GenerateRefreshToken(userId uuid.UUID, role, departement string) (string, error) {
 	claims := jwt.MapClaims{
-		"sub":         userId,
-		"role":        role,
-		"departement": departement,
-		"exp":         jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
+		"sub":        userId,
+		"role":       role,
+		"department": departement,
+		"exp":        jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

@@ -179,7 +179,7 @@ func (uc *userController) RefreshToken(ctx *gin.Context) {
 
 	userUUID, _ := uuid.Parse(userIDStr)
 
-	userDepartement, ok := claims["departement"].(string)
+	userDepartement, ok := claims["department"].(string)
 	if !ok {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 		return
