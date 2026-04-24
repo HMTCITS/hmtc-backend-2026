@@ -2,24 +2,7 @@ package dto
 
 import "errors"
 
-type UserRegisterReq struct {
-	NRP             string  `json:"nrp" form:"nrp" binding:"required"`
-	DepartementName *string `json:"departement_name,omitempty" form:"departement_name,omitempty"`
-}
 
-type UserRegisterRes struct {
-	NRP             string  `json:"nrp"`
-	DepartementName *string `json:"departement_name,omitempty"`
-}
-
-type UserGetByNRPReq struct {
-	NRP string `json:"nrp"`
-}
-
-type UserGetByNRPRes struct {
-	NRP             string  `json:"nrp"`
-	DepartementName *string `json:"departement_name,omitempty"`
-}
 
 type UserGetByEmailReq struct {
 	Email string `json:"email" binding:"required, email"`
@@ -31,7 +14,7 @@ type UserGetByEmailRes struct {
 }
 
 type UserLoginReq struct {
-	Email    string `json:"email" form:"email" binding:"required, email"`
+	Email    string `json:"email" form:"email" binding:"required,email"`
 	Password string `json:"password" form:"password" binding:"required"`
 }
 

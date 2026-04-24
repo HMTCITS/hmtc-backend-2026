@@ -79,12 +79,12 @@ func (us *userService) Login(userReq dto.UserLoginReq) (dto.UserLoginRes, error)
 		return dto.UserLoginRes{}, dto.ErrUserNotFound
 	}
 
-	accessToken, err := utils.GenerateToken(isUser.Id, string(isUser.Role), isUser.Departement.Name)
+	accessToken, err := utils.GenerateToken(isUser.Id, string(isUser.Role), &isUser.Id)
 	if err != nil {
 		return dto.UserLoginRes{}, err
 	}
 
-	refreshToken, err := utils.GenerateRefreshToken(isUser.Id, string(isUser.Role), isUser.Departement.Name)
+	refreshToken, err := utils.GenerateRefreshToken(isUser.Id, string(isUser.Role), &isUser.Id)
 	if err != nil {
 		return dto.UserLoginRes{}, err
 	}
@@ -107,8 +107,8 @@ func (us *userService) GetUserByEmail(userReq dto.UserGetByEmailReq) (dto.UserGe
 	}
 
 	var departementName *string
-	if user.Departement != nil {
-		departementName = &user.Departement.Name
+	if user.DepartmentName != "" {
+		departementName = &user.DepartmentName
 	}
 
 	return dto.UserGetByEmailRes{
@@ -126,10 +126,7 @@ func (us *userService) Me(userId string) (dto.UserMeRes, error) {
 		return dto.UserMeRes{}, err
 	}
 
-	departementName := ""
-	if user.Departement != nil {
-		departementName = user.Departement.Name
-	}
+	departementName := user.DepartmentName
 
 	return dto.UserMeRes{
 		Email:           user.Email,

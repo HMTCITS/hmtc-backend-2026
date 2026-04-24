@@ -102,7 +102,7 @@ func tryRefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	ctx.SetCookie("accessToken", newAccessToken, int(time.Minute*120/time.Second), "/", "", false, true)
+	ctx.SetCookie("accessToken", newAccessToken, int(24*time.Hour/time.Second), "/", "", false, true)
 	ctx.Set("user", userUUID.String())
 
 	ctx.Next()

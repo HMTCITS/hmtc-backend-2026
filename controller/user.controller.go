@@ -135,7 +135,7 @@ func (uc *userController) Login(ctx *gin.Context) {
 		return
 	}
 
-	ctx.SetCookie("accessToken", response.AccessToken, 3600, "/", "", false, true)
+	ctx.SetCookie("accessToken", response.AccessToken, 24*3600, "/", "", false, true)
 	ctx.SetCookie("refreshToken", response.RefreshToken, 7*24*3600, "/", "", false, true)
 
 	res := utils.ResponseSuccess(dto.MSG_USER_LOGIN_SUCCESS, response)
@@ -188,7 +188,7 @@ func (uc *userController) RefreshToken(ctx *gin.Context) {
 	// generate token baru
 	newAccessToken, _ := utils.GenerateToken(userUUID, claims["role"].(string), userDepartement)
 
-	ctx.SetCookie("accessToken", newAccessToken, 3600, "/", "", false, true)
+	ctx.SetCookie("accessToken", newAccessToken, 24*3600, "/", "", false, true)
 	ctx.JSON(http.StatusOK, gin.H{"message": "Access token refreshed"})
 }
 
