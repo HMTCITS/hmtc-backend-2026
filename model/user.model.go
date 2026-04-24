@@ -11,11 +11,9 @@ const (
 
 type User struct {
 	Id  			uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id" form:"id" binding:"required"`
-	NRP 			*string    `gorm:"type:varchar(35);unique" json:"nrp"`
-	Email			string	  `gorm:"type:varchar(35);unique" json:"email" form:"email" binding:"required"`
-	PasswordHash	string	  `gorm:"type:text;not null" json:"-"`
-	DepartementId *uuid.UUID   `gorm:"type:uuid" json:"departement_id"`
-	Departement   *Departement `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"departement"`
+	Email          string    `gorm:"type:varchar(50);unique" json:"email" form:"email" binding:"required"`
+	PasswordHash   string    `gorm:"type:text;not null" json:"-"`
+	DepartmentName string    `gorm:"type:varchar(50)" json:"department_name"`
 
 	Role UserRole `gorm:"type:varchar(10);default:'user'" json:"role" form:"role" binding:"required"`
 

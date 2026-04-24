@@ -10,7 +10,6 @@ type UserRepository interface {
 	IsEmailExist(email string) (bool, error)
 	FindUserByEmail(email string) (model.User, error)
 	FindUserById(id string) (model.User, error)
-	FindDepartementByName(name string) (*model.Departement, error)
 }
 
 type userRepository struct {
@@ -33,7 +32,7 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 
 func (r *userRepository) FindUserById(id string) (model.User, error) {
 	var user model.User
-	if err := r.DB.Preload("Departement").Where("id = ?", id).Take(&user).Error; err != nil {
+	if err := r.DB.Where("id = ?", id).Take(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return model.User{}, err
 		}
@@ -45,7 +44,7 @@ func (r *userRepository) FindUserById(id string) (model.User, error) {
 
 func (r *userRepository) FindUserByEmail(email string) (model.User, error) {
 	var user model.User
-	if err := r.DB.Preload("Departement").Where("email = ?", email).Take(&user).Error; err != nil {
+	if err := r.DB.Where("email = ?", email).Take(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return model.User{}, err
 		}
@@ -67,11 +66,4 @@ func (r *userRepository) IsEmailExist(email string) (bool, error) {
 	return true, nil
 }
 
-func (r *userRepository) FindDepartementByName(name string) (*model.Departement, error) {
-	var departement model.Departement
-	err := r.DB.Where("name = ?", name).First(&departement).Error
-	if err != nil {
-		return nil, err
-	}
-	return &departement, nil
-}
+
