@@ -45,7 +45,7 @@ func RequireAuth(ctx *gin.Context) {
 			return
 		}
 
-		userDepartement, ok := claims["departement"].(string)
+		userDepartement, ok := claims["department"].(string)
 		if !ok {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, utils.ResponseFailed(dto.MSG_AUTH_FAILED, "Invalid user Departement in token"))
 			return
@@ -96,7 +96,7 @@ func tryRefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	newAccessToken, err := utils.GenerateToken(userUUID, claims["role"].(string), claims["departement"].(string))
+	newAccessToken, err := utils.GenerateToken(userUUID, claims["role"].(string), claims["department"].(string))
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, utils.ResponseFailed(dto.MSG_ACCESS_TOKEN_CREATE_FAILED, "Failed to create access token"))
 		return

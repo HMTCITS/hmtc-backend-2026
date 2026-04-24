@@ -79,12 +79,12 @@ func (us *userService) Login(userReq dto.UserLoginReq) (dto.UserLoginRes, error)
 		return dto.UserLoginRes{}, dto.ErrUserNotFound
 	}
 
-	accessToken, err := utils.GenerateToken(isUser.Id, string(isUser.Role), &isUser.Id)
+	accessToken, err := utils.GenerateToken(isUser.Id, string(isUser.Role), isUser.DepartmentName)
 	if err != nil {
 		return dto.UserLoginRes{}, err
 	}
 
-	refreshToken, err := utils.GenerateRefreshToken(isUser.Id, string(isUser.Role), &isUser.Id)
+	refreshToken, err := utils.GenerateRefreshToken(isUser.Id, string(isUser.Role), isUser.DepartmentName)
 	if err != nil {
 		return dto.UserLoginRes{}, err
 	}
