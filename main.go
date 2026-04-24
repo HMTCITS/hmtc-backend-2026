@@ -3,11 +3,15 @@ package main
 import (
 	"fmt"
 	"os"
+	"log"
 
 	"github.com/HMTCITS/hmtc-backend-2025/controller"
 	_ "github.com/HMTCITS/hmtc-backend-2025/docs"
 	"github.com/HMTCITS/hmtc-backend-2025/repository"
 	"github.com/HMTCITS/hmtc-backend-2025/service"
+	"github.com/HMTCITS/hmtc-backend-2025/seeding"
+	"github.com/HMTCITS/hmtc-backend-2025/migration"
+
 	"gorm.io/gorm"
 
 	swaggerFiles "github.com/swaggo/files"
@@ -33,6 +37,16 @@ func main() {
 	var db *gorm.DB = config.ConnectDatabase(appConfig)
 
 	defer config.CloseDatabase(db)
+	
+	if err := migration.Migrate(db); err != nil {
+		log.Printf("Warning: Migration failed: %v", err)
+	}
+	
+	options := seeding.DefaultSeedOptions()
+	seeders := seeding.GetSeeders()
+	if err := seeding.RunAllSeeders(db, options, seeders...); err != nil {
+    		log.Printf("Warning: Seeding failed: %v", err)
+	}
 
 	var (
 		userRepo       repository.UserRepository       = repository.NewUserRepository(db)

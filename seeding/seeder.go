@@ -57,7 +57,6 @@ func RunAllSeeders(db *gorm.DB, options SeedOptions, seeders ...Seeder) error {
 
 func GetSeeders() []Seeder {
 	return []Seeder{
-		NewDepartementSeeder(),
 		NewUserSeeder(),
 		NewAdminSeeder(),
 		NewGallerySeeder(),
