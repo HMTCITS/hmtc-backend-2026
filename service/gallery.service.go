@@ -91,6 +91,8 @@ func (s *galleryService) GetGalleries(ctx context.Context, userNRP string, userD
 	var galleries []model.Gallery
 	var err error
 
+	galleries, err = s.repo.GetGalleries(ctx, filters)
+
 	if err != nil {
 		return nil, err
 	}
