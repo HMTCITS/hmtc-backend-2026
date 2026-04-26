@@ -14,8 +14,8 @@ import (
 )
 
 type GalleryService interface {
-	CreateGallery(ctx context.Context, req dto.GalleryCreateReq, createdBy string) (dto.GalleryResponse, error)
-	GetGalleries(ctx context.Context, userNRP string, userDeptName string, userRole string, filters dto.GalleryFilterParams) ([]dto.GalleryResponse, error)
+	CreateGallery(ctx context.Context, req dto.GalleryCreateReq) (dto.GalleryResponse, error)
+	GetGalleries(ctx context.Context) ([]dto.GalleryResponse, error)
 	GetGalleryByID(ctx context.Context, id string) (dto.GalleryResponse, error)
 	UpdateGallery(ctx context.Context, id string, req dto.GalleryUpdateReq) (dto.GalleryResponse, error)
 	DeleteGallery(ctx context.Context, id string) error
@@ -59,7 +59,7 @@ func galleryToResponse(g model.Gallery) dto.GalleryResponse {
 	return resp
 }
 
-func (s *galleryService) CreateGallery(ctx context.Context, req dto.GalleryCreateReq, createdBy string) (dto.GalleryResponse, error) {
+func (s *galleryService) CreateGallery(ctx context.Context, req dto.GalleryCreateReq) (dto.GalleryResponse, error) {
 	if err := validateGDriveLink(req.GDriveLink); err != nil {
 		return dto.GalleryResponse{}, err
 	}
@@ -87,11 +87,11 @@ func (s *galleryService) CreateGallery(ctx context.Context, req dto.GalleryCreat
 	return galleryToResponse(created), nil
 }
 
-func (s *galleryService) GetGalleries(ctx context.Context, userNRP string, userDeptName string, userRole string, filters dto.GalleryFilterParams) ([]dto.GalleryResponse, error) {
+func (s *galleryService) GetGalleries(ctx context.Context) ([]dto.GalleryResponse, error) {
 	var galleries []model.Gallery
 	var err error
 
-	galleries, err = s.repo.GetGalleries(ctx, filters)
+	galleries, err = s.repo.GetGalleries(ctx)
 
 	if err != nil {
 		return nil, err

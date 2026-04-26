@@ -74,13 +74,8 @@ func (gc *galleryController) Create(ctx *gin.Context) {
 // @Failure 500 {object} utils.Response{error=string}
 // @Router /gallery [get]
 func (gc *galleryController) GetAll(ctx *gin.Context) {
-	var filters dto.GalleryFilterParams
-	if err := ctx.ShouldBindQuery(&filters); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, utils.ResponseFailed(dto.MSG_GALLERY_GET_FAILED, err.Error()))
-		return
-	}
 
-	result, err := gc.galleryService.GetGalleries(ctx.Request.Context(), filters)
+	result, err := gc.galleryService.GetGalleries(ctx.Request.Context())
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, utils.ResponseFailed(dto.MSG_GALLERY_GET_FAILED, err.Error()))
 		return

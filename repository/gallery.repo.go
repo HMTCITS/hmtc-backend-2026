@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 
-	"github.com/HMTCITS/hmtc-backend-2025/dto"
 	"github.com/HMTCITS/hmtc-backend-2025/model"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -11,7 +10,7 @@ import (
 
 type GalleriesRepository interface {
 	CreateGallery(ctx context.Context, gallery model.Gallery) (model.Gallery, error)
-	GetGalleries(ctx context.Context, filters dto.GalleryFilterParams) ([]model.Gallery, error)
+	GetGalleries(ctx context.Context) ([]model.Gallery, error)
 	GetGalleryByID(ctx context.Context, galleryId uuid.UUID) (model.Gallery, error)
 	UpdateGallery(ctx context.Context, galleryId uuid.UUID, gallery model.Gallery) (model.Gallery, error)
 	DeleteGallery(ctx context.Context, galleryId uuid.UUID) error
@@ -39,22 +38,10 @@ func (r *galleriesRepository) CreateGallery(ctx context.Context, gallery model.G
 	return gallery, nil
 }
 
-func (r *galleriesRepository) applyDateFilters(query *gorm.DB, filters dto.GalleryFilterParams) *gorm.DB {
-	if filters.EventDateFrom != "" {
-		query = query.Where("event_created_at >= ?", filters.EventDateFrom)
-	}
-	if filters.EventDateTo != "" {
-		query = query.Where("event_created_at <= ?", filters.EventDateTo+" 23:59:59")
-	}
-	return query
-}
-
-func (r *galleriesRepository) GetGalleries(ctx context.Context, filters dto.GalleryFilterParams) ([]model.Gallery, error) {
+func (r *galleriesRepository) GetGalleries(ctx context.Context) ([]model.Gallery, error) {
 	var galleries []model.Gallery
 
 	query := r.db.WithContext(ctx)
-
-	query = r.applyDateFilters(query, filters)
 
 	if err := query.Order("created_at DESC").Find(&galleries).Error; err != nil {
 		return nil, err
