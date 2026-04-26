@@ -41,19 +41,6 @@ func validateGDriveLink(link string) error {
 	return nil
 }
 
-func parseVisibility(v string) (model.GalleryVisibility, error) {
-	switch v {
-	case string(model.VisibilityPublic), "":
-		return model.VisibilityPublic, nil
-	case string(model.VisibilityCMIOnly):
-		return model.VisibilityCMIOnly, nil
-	case string(model.VisibilityAdminOnly):
-		return model.VisibilityAdminOnly, nil
-	default:
-		return "", dto.ErrGalleryInvalidVisibility
-	}
-}
-
 func galleryToResponse(g model.Gallery) dto.GalleryResponse {
 	resp := dto.GalleryResponse{
 		Id:           g.Id.String(),
@@ -61,30 +48,12 @@ func galleryToResponse(g model.Gallery) dto.GalleryResponse {
 		Description:  g.Description,
 		GDriveLink:   g.GDriveLink,
 		ThumbnailUrl: g.ThumbnailUrl,
-		Visibility:   string(g.Visibility),
-		CreatedBy:    g.CreatedBy,
 		CreatedAt:    g.Timestamp.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:    g.Timestamp.UpdatedAt.Format(time.RFC3339),
 	}
 
 	if !g.EventDate.CreatedAt.IsZero() {
 		resp.EventDate = g.EventDate.CreatedAt.Format("2006-01-02")
-	}
-
-	if len(g.AllowedDepts) > 0 {
-		depts := make([]string, len(g.AllowedDepts))
-		for i, d := range g.AllowedDepts {
-			depts[i] = d.DeptName
-		}
-		resp.AllowedDepts = depts
-	}
-
-	if len(g.AllowedNRPs) > 0 {
-		nrps := make([]string, len(g.AllowedNRPs))
-		for i, n := range g.AllowedNRPs {
-			nrps[i] = n.NRP
-		}
-		resp.AllowedNRPs = nrps
 	}
 
 	return resp
@@ -95,18 +64,11 @@ func (s *galleryService) CreateGallery(ctx context.Context, req dto.GalleryCreat
 		return dto.GalleryResponse{}, err
 	}
 
-	visibility, err := parseVisibility(req.Visibility)
-	if err != nil {
-		return dto.GalleryResponse{}, err
-	}
-
 	gallery := model.Gallery{
 		Title:        req.Title,
 		Description:  req.Description,
 		GDriveLink:   req.GDriveLink,
 		ThumbnailUrl: req.ThumbnailUrl,
-		Visibility:   visibility,
-		CreatedBy:    createdBy,
 	}
 
 	if req.EventDate != "" {
@@ -115,17 +77,6 @@ func (s *galleryService) CreateGallery(ctx context.Context, req dto.GalleryCreat
 			return dto.GalleryResponse{}, err
 		}
 		gallery.EventDate = model.Timestamp{CreatedAt: t, UpdatedAt: t}
-	}
-
-	for _, dept := range req.AllowedDepts {
-		gallery.AllowedDepts = append(gallery.AllowedDepts, model.GalleryAllowedDept{
-			DeptName: dept,
-		})
-	}
-	for _, nrp := range req.AllowedNRPs {
-		gallery.AllowedNRPs = append(gallery.AllowedNRPs, model.GalleryAllowedNRP{
-			NRP: nrp,
-		})
 	}
 
 	created, err := s.repo.CreateGallery(ctx, gallery)
@@ -139,12 +90,6 @@ func (s *galleryService) CreateGallery(ctx context.Context, req dto.GalleryCreat
 func (s *galleryService) GetGalleries(ctx context.Context, userNRP string, userDeptName string, userRole string, filters dto.GalleryFilterParams) ([]dto.GalleryResponse, error) {
 	var galleries []model.Gallery
 	var err error
-
-	if userRole == "admin" {
-		galleries, err = s.repo.GetGalleries(ctx, nil, filters)
-	} else {
-		galleries, err = s.repo.GetAccessibleGalleries(ctx, userNRP, userDeptName, filters)
-	}
 
 	if err != nil {
 		return nil, err
@@ -202,13 +147,6 @@ func (s *galleryService) UpdateGallery(ctx context.Context, id string, req dto.G
 		}
 		updateData.ThumbnailUrl = *req.ThumbnailUrl
 	}
-	if req.Visibility != nil {
-		visibility, err := parseVisibility(*req.Visibility)
-		if err != nil {
-			return dto.GalleryResponse{}, err
-		}
-		updateData.Visibility = visibility
-	}
 	if req.EventDate != nil && *req.EventDate != "" {
 		t, err := time.Parse("2006-01-02", *req.EventDate)
 		if err != nil {
@@ -223,33 +161,6 @@ func (s *galleryService) UpdateGallery(ctx context.Context, id string, req dto.G
 			return dto.GalleryResponse{}, dto.ErrGalleryNotFound
 		}
 		return dto.GalleryResponse{}, err
-	}
-
-	if req.AllowedDepts != nil || req.AllowedNRPs != nil {
-		var depts []model.GalleryAllowedDept
-		var nrps []model.GalleryAllowedNRP
-
-		for _, dept := range req.AllowedDepts {
-			depts = append(depts, model.GalleryAllowedDept{
-				GalleryId: galleryId,
-				DeptName:  dept,
-			})
-		}
-		for _, nrp := range req.AllowedNRPs {
-			nrps = append(nrps, model.GalleryAllowedNRP{
-				GalleryId: galleryId,
-				NRP:       nrp,
-			})
-		}
-
-		if err := s.repo.UpdateGalleryAccessControl(ctx, galleryId, depts, nrps); err != nil {
-			return dto.GalleryResponse{}, err
-		}
-
-		updated, err = s.repo.GetGalleryByID(ctx, galleryId)
-		if err != nil {
-			return dto.GalleryResponse{}, err
-		}
 	}
 
 	return galleryToResponse(updated), nil
