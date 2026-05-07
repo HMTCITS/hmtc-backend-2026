@@ -12,11 +12,11 @@ import (
 )
 
 type UserController interface {
-	Register(ctx *gin.Context)
+	// Register(ctx *gin.Context)
 	Login(ctx *gin.Context)
 	// Refresh(ctx *gin.Context)
 	RefreshToken(ctx *gin.Context)
-	GetUserByNRP(ctx *gin.Context)
+	GetUserByEmail(ctx *gin.Context)
 	Me(ctx *gin.Context)
 	MeAdmin(ctx *gin.Context)
 	Logout(ctx *gin.Context)
@@ -47,26 +47,26 @@ func NewUserController(us service.UserService) UserController {
 // // @Router /auth/register [post]
 // --- COMMENT BENTAR
 
-func (uc *userController) Register(ctx *gin.Context) {
-	var userReq dto.UserRegisterReq
+// func (uc *userController) Register(ctx *gin.Context) {
+// 	var userReq dto.UserRegisterReq
 
-	if err := ctx.ShouldBind(&userReq); err != nil {
-		res := utils.ResponseFailed(dto.MSG_USER_REGISTER_FAILED, err.Error())
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
-		return
-	}
+// 	if err := ctx.ShouldBind(&userReq); err != nil {
+// 		res := utils.ResponseFailed(dto.MSG_USER_REGISTER_FAILED, err.Error())
+// 		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+// 		return
+// 	}
 
-	response, err := uc.userService.Register(userReq)
+// 	response, err := uc.userService.Register(userReq)
 
-	if err != nil {
-		res := utils.ResponseFailed(dto.MSG_USER_REGISTER_FAILED, err.Error())
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, res)
-		return
-	}
+// 	if err != nil {
+// 		res := utils.ResponseFailed(dto.MSG_USER_REGISTER_FAILED, err.Error())
+// 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, res)
+// 		return
+// 	}
 
-	res := utils.ResponseSuccess(dto.MSG_USER_REGISTER_SUCCESS, response)
-	ctx.JSON(http.StatusCreated, res)
-}
+// 	res := utils.ResponseSuccess(dto.MSG_USER_REGISTER_SUCCESS, response)
+// 	ctx.JSON(http.StatusCreated, res)
+// }
 
 // --- COMMENT BENTAR
 // // Get User NRP godoc
@@ -82,17 +82,17 @@ func (uc *userController) Register(ctx *gin.Context) {
 // // @Router /auth/getuser [get]
 // --- COMMENT BENTAR
 
-func (uc *userController) GetUserByNRP(ctx *gin.Context) {
-	nrp := ctx.Query("nrp")
+func (uc *userController) GetUserByEmail(ctx *gin.Context) {
+	email := ctx.Query("email")
 
-	if nrp == "" {
-		res := utils.ResponseFailed(dto.MSG_USER_NOT_FOUND, "NRP harus diisi")
+	if email == "" {
+		res := utils.ResponseFailed(dto.MSG_USER_NOT_FOUND, "Email harus diisi")
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
 
-	userReq := dto.UserGetByNRPReq{NRP: nrp}
-	response, err := uc.userService.GetUserByNRP(userReq)
+	userReq := dto.UserGetByEmailReq{Email: email}
+	response, err := uc.userService.GetUserByEmail(userReq)
 	if err != nil {
 		res := utils.ResponseFailed(dto.MSG_USER_NOT_FOUND, err.Error())
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, res)
@@ -122,7 +122,7 @@ func (uc *userController) Login(ctx *gin.Context) {
 	var userReq dto.UserLoginReq
 
 	if err := ctx.ShouldBind(&userReq); err != nil {
-		res := utils.ResponseFailed(dto.MSG_USER_LOGIN_FAILED, "NRP harus diisi")
+		res := utils.ResponseFailed(dto.MSG_USER_LOGIN_FAILED, "Email harus diisi")
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
@@ -130,12 +130,12 @@ func (uc *userController) Login(ctx *gin.Context) {
 	response, err := uc.userService.Login(userReq)
 
 	if err != nil {
-		res := utils.ResponseFailed(dto.MSG_USER_LOGIN_FAILED, "NRP tidak ditemukan")
+		res := utils.ResponseFailed(dto.MSG_USER_LOGIN_FAILED, "Email tidak ditemukan")
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
 
-	ctx.SetCookie("accessToken", response.AccessToken, 3600, "/", "", false, true)
+	ctx.SetCookie("accessToken", response.AccessToken, 24*3600, "/", "", false, true)
 	ctx.SetCookie("refreshToken", response.RefreshToken, 7*24*3600, "/", "", false, true)
 
 	res := utils.ResponseSuccess(dto.MSG_USER_LOGIN_SUCCESS, response)
@@ -179,10 +179,16 @@ func (uc *userController) RefreshToken(ctx *gin.Context) {
 
 	userUUID, _ := uuid.Parse(userIDStr)
 
-	// generate token baru
-	newAccessToken, _ := utils.GenerateToken(userUUID, claims["role"].(string))
+	userDepartement, ok := claims["department"].(string)
+	if !ok {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		return
+	}
 
-	ctx.SetCookie("accessToken", newAccessToken, 3600, "/", "", false, true)
+	// generate token baru
+	newAccessToken, _ := utils.GenerateToken(userUUID, claims["role"].(string), userDepartement)
+
+	ctx.SetCookie("accessToken", newAccessToken, 24*3600, "/", "", false, true)
 	ctx.JSON(http.StatusOK, gin.H{"message": "Access token refreshed"})
 }
 

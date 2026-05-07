@@ -14,8 +14,9 @@ func Migrate(db *gorm.DB) error {
 	err := db.AutoMigrate(
 		&model.User{},
 		&model.OAuthToken{},
-		&model.Departement{},
-		&model.LinkShortener{})
+		&model.LinkShortener{},
+		&model.Gallery{},
+	)
 	if err != nil {
 		return err
 	}

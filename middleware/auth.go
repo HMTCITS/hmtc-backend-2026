@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/HMTCITS/hmtc-backend-2025/dto"
@@ -44,8 +45,15 @@ func RequireAuth(ctx *gin.Context) {
 			return
 		}
 
+		userDepartement, ok := claims["department"].(string)
+		if !ok {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, utils.ResponseFailed(dto.MSG_AUTH_FAILED, "Invalid user Departement in token"))
+			return
+		}
+
 		ctx.Set("user", userId)
 		ctx.Set("role", userRole)
+		ctx.Set("departement", userDepartement)
 		ctx.Next()
 	} else {
 		tryRefreshToken(ctx)
@@ -88,14 +96,15 @@ func tryRefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	newAccessToken, err := utils.GenerateToken(userUUID, claims["role"].(string))
+	newAccessToken, err := utils.GenerateToken(userUUID, claims["role"].(string), claims["department"].(string))
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, utils.ResponseFailed(dto.MSG_ACCESS_TOKEN_CREATE_FAILED, "Failed to create access token"))
 		return
 	}
 
-	ctx.SetCookie("accessToken", newAccessToken, int(time.Minute*120/time.Second), "/", "", false, true)
+	ctx.SetCookie("accessToken", newAccessToken, int(24*time.Hour/time.Second), "/", "", false, true)
 	ctx.Set("user", userUUID.String())
+
 	ctx.Next()
 }
 
@@ -111,5 +120,19 @@ func OnlyAdmin(ctx *gin.Context) {
 		return
 	}
 
+	ctx.Next()
+}
+
+func OnlyCMI(ctx *gin.Context) {
+	userDepartment, exists := ctx.Get("departement")
+	if !exists {
+		ctx.AbortWithStatusJSON(http.StatusForbidden, utils.ResponseFailed(dto.MSG_AUTH_FAILED, "No departement"))
+		return
+	}
+	deprt := strings.ToLower(userDepartment.(string))
+	if deprt != "cmi" {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, utils.ResponseFailed(dto.MSG_USER_FORBIDDEN, "Departement has no access"))
+		return
+	}
 	ctx.Next()
 }

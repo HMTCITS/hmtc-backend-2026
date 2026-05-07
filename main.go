@@ -3,11 +3,15 @@ package main
 import (
 	"fmt"
 	"os"
+	"log"
 
 	"github.com/HMTCITS/hmtc-backend-2025/controller"
 	_ "github.com/HMTCITS/hmtc-backend-2025/docs"
 	"github.com/HMTCITS/hmtc-backend-2025/repository"
 	"github.com/HMTCITS/hmtc-backend-2025/service"
+	"github.com/HMTCITS/hmtc-backend-2025/seeding"
+	"github.com/HMTCITS/hmtc-backend-2025/migration"
+
 	"gorm.io/gorm"
 
 	swaggerFiles "github.com/swaggo/files"
@@ -33,11 +37,22 @@ func main() {
 	var db *gorm.DB = config.ConnectDatabase(appConfig)
 
 	defer config.CloseDatabase(db)
+	
+	if err := migration.Migrate(db); err != nil {
+		log.Printf("Warning: Migration failed: %v", err)
+	}
+	
+	options := seeding.DefaultSeedOptions()
+	seeders := seeding.GetSeeders()
+	if err := seeding.RunAllSeeders(db, options, seeders...); err != nil {
+    		log.Printf("Warning: Seeding failed: %v", err)
+	}
 
 	var (
 		userRepo       repository.UserRepository       = repository.NewUserRepository(db)
 		shortLinkRepo  repository.ShortLinkRepository  = repository.NewShortLinkRepository(db)
 		oauthTokenRepo repository.OAuthTokenRepository = repository.NewOAuthTokenRepo(db)
+		galleriesRepo  repository.GalleriesRepository  = repository.NewGalleriesRepository(db)
 
 		userService      service.UserService      = service.NewUserService(userRepo)
 		shortLinkService service.ShortLinkService = service.NewShortLinkService(shortLinkRepo)
@@ -45,12 +60,14 @@ func main() {
 		sheetsService    service.SheetsService    = service.NewSheetsService(oauthTokenRepo)
 		magangService    service.MagangService    = service.NewMagangService(driveService, sheetsService)
 		evalCmi25Service service.EvalCmi25Service = service.NewEvalCmi25Service(sheetsService)
+		galleriesService service.GalleriesService = service.NewGalleriesService(galleriesRepo)
 
 		userController      controller.UserController      = controller.NewUserController(userService)
 		healthController    controller.HealthController    = controller.NewHealthController()
 		shortLinkController controller.ShortLinkController = controller.NewShortLinkController(shortLinkService)
 		magangController    controller.MagangController    = controller.NewMagangController(magangService, oauthTokenRepo)
 		evalCmi25Controller controller.EvalCmi25Controller = controller.NewEvalCmi25Controller(evalCmi25Service)
+		galleryController   controller.GalleryController   = controller.NewGalleryController(galleriesService)
 	)
 
 	server := gin.Default()
@@ -65,6 +82,7 @@ func main() {
 	router.Magang(server, magangController)
 	router.Health(server, healthController)
 	router.EvalCmi25(server, evalCmi25Controller)
+	router.Gallery(server, galleryController)
 
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
