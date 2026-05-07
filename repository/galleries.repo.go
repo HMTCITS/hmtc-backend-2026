@@ -10,7 +10,7 @@ import (
 
 type GalleriesRepository interface {
 	CreateGallery(ctx context.Context, gallery model.Gallery) (model.Gallery, error)
-	GetGalleries(ctx context.Context, visibilities []model.GalleryVisibility) ([]model.Gallery, error)
+	GetGalleries(ctx context.Context) ([]model.Gallery, error)
 	GetGalleryByID(ctx context.Context, galleryId uuid.UUID) (model.Gallery, error)
 	UpdateGallery(ctx context.Context, galleryId uuid.UUID, gallery model.Gallery) (model.Gallery, error)
 	DeleteGallery(ctx context.Context, galleryId uuid.UUID) error
@@ -33,13 +33,10 @@ func (r *galleriesRepository) CreateGallery(ctx context.Context, gallery model.G
 	return gallery, nil
 }
 
-func (r *galleriesRepository) GetGalleries(ctx context.Context, visibilities []model.GalleryVisibility) ([]model.Gallery, error) {
+func (r *galleriesRepository) GetGalleries(ctx context.Context) ([]model.Gallery, error) {
 	var galleries []model.Gallery
 
 	query := r.db.WithContext(ctx)
-	if len(visibilities) > 0 {
-		query = query.Where("visibility IN ?", visibilities)
-	}
 
 	if err := query.Order("created_at DESC").Find(&galleries).Error; err != nil {
 		return nil, err

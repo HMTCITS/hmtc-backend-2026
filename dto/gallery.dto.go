@@ -8,7 +8,6 @@ type GalleryCreateReq struct {
 	EventDate    string `json:"event_date" form:"event_date"`
 	GDriveLink   string `json:"gdrive_link" form:"gdrive_link"`
 	ThumbnailUrl string `json:"thumbnail_url" form:"thumbnail_url"`
-	Visibility   string `json:"visibility" form:"visibility"`
 }
 
 type GalleryUpdateReq struct {
@@ -17,7 +16,6 @@ type GalleryUpdateReq struct {
 	EventDate    *string `json:"event_date" form:"event_date"`
 	GDriveLink   *string `json:"gdrive_link" form:"gdrive_link"`
 	ThumbnailUrl *string `json:"thumbnail_url" form:"thumbnail_url"`
-	Visibility   *string `json:"visibility" form:"visibility"`
 }
 
 type GalleryResponse struct {
@@ -27,7 +25,6 @@ type GalleryResponse struct {
 	EventDate    string `json:"event_date,omitempty"`
 	GDriveLink   string `json:"gdrive_link"`
 	ThumbnailUrl string `json:"thumbnail_url"`
-	Visibility   string `json:"visibility"`
 	CreatedAt    string `json:"created_at"`
 	UpdatedAt    string `json:"updated_at"`
 }
@@ -47,7 +44,6 @@ const (
 )
 
 var (
-	ErrGalleryNotFound     = errors.New("gallery not found")
-	ErrGalleryInvalidID    = errors.New("invalid gallery id")
-	ErrGalleryInvalidVisibility = errors.New("invalid visibility value, must be: public, cmi_only, or admin_only")
+	ErrGalleryNotFound  = errors.New("gallery not found")
+	ErrGalleryInvalidID = errors.New("invalid gallery id")
 )

@@ -29,7 +29,6 @@ func NewGallerySeeder() *GallerySeeder {
 				Description:  "Kumpulan foto dan video malam puncak inagurasi HMTC.",
 				GDriveLink:   "https://drive.google.com/drive/folders/...",
 				ThumbnailUrl: "https://storage.hmtc.com/thumb/inagurasi.jpg",
-				Visibility:   model.VisibilityPublic,
 				EventDate: model.Timestamp{
 					CreatedAt: t,
 					UpdatedAt: t,

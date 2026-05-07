@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/HMTCITS/hmtc-backend-2025/dto"
@@ -28,22 +27,12 @@ func NewGalleriesService(repo repository.GalleriesRepository) GalleriesService {
 }
 
 func (s *galleriesService) CreateGallery(ctx context.Context, req dto.GalleryCreateReq) (model.Gallery, error) {
-	visibility := model.VisibilityPublic
-	if req.Visibility != "" {
-		v := model.GalleryVisibility(req.Visibility)
-		if v != model.VisibilityPublic && v != model.VisibilityCMIOnly && v != model.VisibilityAdminOnly {
-			return model.Gallery{}, dto.ErrGalleryInvalidVisibility
-		}
-		visibility = v
-	}
-
 	gallery := model.Gallery{
 		Id:           uuid.New(),
 		Title:        req.Title,
 		Description:  req.Description,
 		GDriveLink:   req.GDriveLink,
 		ThumbnailUrl: req.ThumbnailUrl,
-		Visibility:   visibility,
 	}
 
 	if req.EventDate != "" {
@@ -64,8 +53,7 @@ func (s *galleriesService) CreateGallery(ctx context.Context, req dto.GalleryCre
 }
 
 func (s *galleriesService) GetGalleries(ctx context.Context, userRole, userDepartement string) ([]model.Gallery, error) {
-	visibilities := resolveVisibilities(userRole, userDepartement)
-	return s.repo.GetGalleries(ctx, visibilities)
+	return s.repo.GetGalleries(ctx)
 }
 
 func (s *galleriesService) GetGalleryByID(ctx context.Context, id uuid.UUID) (model.Gallery, error) {
@@ -92,14 +80,6 @@ func (s *galleriesService) UpdateGallery(ctx context.Context, id uuid.UUID, req 
 		updates.ThumbnailUrl = *req.ThumbnailUrl
 		hasUpdate = true
 	}
-	if req.Visibility != nil {
-		v := model.GalleryVisibility(*req.Visibility)
-		if v != model.VisibilityPublic && v != model.VisibilityCMIOnly && v != model.VisibilityAdminOnly {
-			return model.Gallery{}, dto.ErrGalleryInvalidVisibility
-		}
-		updates.Visibility = v
-		hasUpdate = true
-	}
 	if req.EventDate != nil && *req.EventDate != "" {
 		parsed, err := time.Parse("2006-01-02", *req.EventDate)
 		if err != nil {
@@ -124,27 +104,4 @@ func (s *galleriesService) UpdateGallery(ctx context.Context, id uuid.UUID, req 
 
 func (s *galleriesService) DeleteGallery(ctx context.Context, id uuid.UUID) error {
 	return s.repo.DeleteGallery(ctx, id)
-}
-
-func resolveVisibilities(userRole, userDepartement string) []model.GalleryVisibility {
-	dept := strings.ToLower(userDepartement)
-
-	if userRole == "admin" {
-		return []model.GalleryVisibility{
-			model.VisibilityPublic,
-			model.VisibilityCMIOnly,
-			model.VisibilityAdminOnly,
-		}
-	}
-
-	if dept == "cmi" {
-		return []model.GalleryVisibility{
-			model.VisibilityPublic,
-			model.VisibilityCMIOnly,
-		}
-	}
-
-	return []model.GalleryVisibility{
-		model.VisibilityPublic,
-	}
 }
