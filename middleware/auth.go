@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/HMTCITS/hmtc-backend-2025/dto"
@@ -129,8 +128,7 @@ func OnlyCMI(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusForbidden, utils.ResponseFailed(dto.MSG_AUTH_FAILED, "No departement"))
 		return
 	}
-	deprt := strings.ToLower(userDepartment.(string))
-	if deprt != "cmi" {
+	if userDepartment != "Creative Media Information" {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, utils.ResponseFailed(dto.MSG_USER_FORBIDDEN, "Departement has no access"))
 		return
 	}
