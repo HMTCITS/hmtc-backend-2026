@@ -36,11 +36,11 @@ func LoadConfig() *Config {
 	}
 
 	AppConfig = &Config{
-		DBHost:              getEnv("DB_HOST", ""),
-		DBUser:              getEnv("DB_USER", ""),
-		DBPassword:          getEnv("DB_PASS", ""),
-		DBName:              getEnv("DB_NAME", ""),
-		DBPort:              getEnv("DB_PORT", ""),
+		DBHost:              getEnv("POSTGRES_HOST", ""),
+		DBUser:              getEnv("POSTGRES_USER", ""),
+		DBPassword:          getEnv("POSTGRES_PASSWORD", ""),
+		DBName:              getEnv("POSTGRES_DB", ""),
+		DBPort:              getEnv("POSTGRES_PORT", ""),
 		JWTSecret:           getEnv("JWT_SECRET", ""),
 		JWTRefreshSecret:    getEnv("JWT_REFRESH_SECRET", ""),
 		NodeEnv:             getEnv("NODE_ENV", ""),
