@@ -1,6 +1,28 @@
 version: "3.9"
 
 services:
+  directus:
+    image: directus/directus:10.13.1
+    container_name: directus-hmtc
+    ports:
+      - "8055:8055"
+    environment:
+      KEY: "${DIRECTUS_KEY:-generate-random-uuid}"
+      SECRET: "${DIRECTUS_SECRET:-generate-random-secret}"
+      ADMIN_EMAIL: "${DIRECTUS_ADMIN_EMAIL:-admin@hmtc.or.id}"
+      ADMIN_PASSWORD: "${DIRECTUS_ADMIN_PASSWORD:-Admin123!}"
+      DB_CLIENT: "pg"
+      DB_HOST: "db"
+      DB_PORT: "5432"
+      DB_DATABASE: "${DB_NAME}"
+      DB_USER: "${DB_USER}"
+      DB_PASSWORD: "${DB_PASS}"
+      CORS_ENABLED: "true"
+      CORS_ORIGIN: "true"
+    depends_on:
+      - db
+    restart: unless-stopped
+
   backend:
     build:
       context: .
